@@ -69,12 +69,13 @@ html, body, [class*="css"] {
                 radial-gradient(ellipse at 80% 80%, #1a0535 0%, #03050f 55%);
     background-blend-mode: screen;
     min-height: 100vh;
+    overflow-x: hidden;
 }
 
 #MainMenu, footer, header,
 .stDeployButton, [data-testid="stToolbar"] { display: none !important; }
 
-/* ── Custom Scrollbar to reveal hidden sidebar elements ── */
+/* ── Custom Scrollbar globally ── */
 ::-webkit-scrollbar {
     width: 8px;
     height: 8px;
@@ -91,14 +92,24 @@ html, body, [class*="css"] {
     background: linear-gradient(180deg, var(--accent-violet), var(--accent-rose));
 }
 
-/* ── Sidebar — Glass Panel ── */
+/* ── Sidebar — Glass Panel & Force Scrolling ── */
 [data-testid="stSidebar"] {
     background: rgba(8, 12, 36, 0.75) !important;
     backdrop-filter: var(--glass-blur) !important;
     border-right: 1px solid var(--glass-border) !important;
-    overflow-y: auto !important; /* Force vertical scroll */
 }
-[data-testid="stSidebar"] > div:first-child { padding-top: 1.5rem; }
+
+/* ── THE FIX: Force Streamlit's inner sidebar container to scroll properly ── */
+[data-testid="stSidebarUserContent"] {
+    overflow-y: auto !important;
+    padding-bottom: 6rem !important; /* Adds extra space at the bottom so sliders don't cut off */
+    height: 100% !important;
+}
+[data-testid="stSidebar"] > div:first-child { 
+    padding-top: 1.5rem; 
+    height: 100vh !important;
+    overflow-y: auto !important;
+}
 
 .block-container {
     padding: 1.5rem 2rem 3rem 2rem !important;
@@ -491,7 +502,6 @@ if not data_loaded:
 # 6.  SIDEBAR — ATM OS UI + Dropdowns
 # ─────────────────────────────────────────────────────────────────────────────
 with st.sidebar:
-    # ATM OS Header
     st.markdown(
         '<div style="text-align:center; padding: 0.5rem 0 0.5rem;">'
         '<span style="font-family:Orbitron,monospace; font-size:1.6rem; '
@@ -504,7 +514,6 @@ with st.sidebar:
         unsafe_allow_html=True,
     )
 
-    # Animated ATM Loop
     st.markdown(
         '''
         <div class="atm-machine">
@@ -522,7 +531,6 @@ with st.sidebar:
         unsafe_allow_html=True
     )
 
-    # ── Global Filters (Checkboxes in Expanders) ──
     st.markdown('<div class="sidebar-section-header">Global Filters</div>', unsafe_allow_html=True)
 
     all_locations = sorted(df["Location_Type"].unique())
@@ -539,9 +547,7 @@ with st.sidebar:
         min_value=date_min, max_value=date_max, key="date_range",
     )
 
-    # ── Clustering Parameters ──
     st.markdown('<div class="sidebar-section-header">Clustering (K-Means)</div>', unsafe_allow_html=True)
-
     k_value = st.slider("Number of Clusters (K)", 2, 10, 4, key="k_val")
     km_random_state = st.slider("Random State", 0, 100, 42, key="km_rs")
     
@@ -550,9 +556,7 @@ with st.sidebar:
     with st.expander("🧩 Cluster Features"):
         cluster_features = [f for f in all_cluster_features if st.checkbox(f, value=(f in default_cl_features), key=f"chk_cl_{f}")]
 
-    # ── Anomaly Detection Parameters ──
     st.markdown('<div class="sidebar-section-header">Anomaly Detection</div>', unsafe_allow_html=True)
-
     iso_contamination = st.slider("Contamination Rate", 0.01, 0.30, 0.05, step=0.01, key="iso_cont")
     
     all_ano_features = ["Total_Withdrawals", "Cash_Demand_Next_Day", "Previous_Day_Cash_Level", "Net_Flow"]
@@ -562,14 +566,13 @@ with st.sidebar:
         
     holiday_only = st.checkbox("Holiday / Event Days Only", value=False, key="hol_only")
 
-    # ── Forecasting Parameters ──
     st.markdown('<div class="sidebar-section-header">Forecasting</div>', unsafe_allow_html=True)
     forecast_days = st.slider("Days to Forecast", 3, 30, 7, key="fc_days")
 
     st.markdown("---")
     st.markdown(
         '<div style="font-size:0.62rem; color:rgba(200,210,255,0.3); '
-        'text-align:center; letter-spacing:1px;">'
+        'text-align:center; letter-spacing:1px; margin-bottom: 20px;">'
         'Saurav Kamble · IBCP AI First Year<br>Glass OS FA-2</div>',
         unsafe_allow_html=True,
     )
