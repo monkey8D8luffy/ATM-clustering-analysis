@@ -34,7 +34,7 @@ st.set_page_config(
 )
 
 # ─────────────────────────────────────────────────────────────────────────────
-# 1.  CUSTOM CSS  — Glass OS / Glassmorphism Theme
+# 1.  CUSTOM CSS  — Glass OS / Morphing Glass Theme & Animations
 # ─────────────────────────────────────────────────────────────────────────────
 GLASS_CSS = """
 <style>
@@ -71,7 +71,6 @@ html, body, [class*="css"] {
     min-height: 100vh;
 }
 
-/* ── Hide Streamlit chrome ── */
 #MainMenu, footer, header,
 .stDeployButton, [data-testid="stToolbar"] { display: none !important; }
 
@@ -83,35 +82,107 @@ html, body, [class*="css"] {
 }
 [data-testid="stSidebar"] > div:first-child { padding-top: 1.5rem; }
 
-/* ── Main content wrapper ── */
 .block-container {
     padding: 1.5rem 2rem 3rem 2rem !important;
     max-width: 100% !important;
 }
 
-/* ── Animated slide-in for main sections ── */
+/* ── ANIMATIONS ── */
 @keyframes slideUpFade {
     from { opacity: 0; transform: translateY(32px); }
     to   { opacity: 1; transform: translateY(0);   }
 }
 
+/* Morphing Glass Animation */
+@keyframes morphGlass {
+    0% {
+        box-shadow: 0 4px 20px rgba(0, 212, 255, 0.05);
+        border-color: rgba(255, 255, 255, 0.08);
+        background: rgba(255, 255, 255, 0.04);
+    }
+    50% {
+        box-shadow: 0 4px 35px rgba(123, 47, 255, 0.18);
+        border-color: rgba(0, 212, 255, 0.25);
+        background: rgba(255, 255, 255, 0.07);
+    }
+    100% {
+        box-shadow: 0 4px 20px rgba(0, 212, 255, 0.05);
+        border-color: rgba(255, 255, 255, 0.08);
+        background: rgba(255, 255, 255, 0.04);
+    }
+}
+
+/* ── CSS ATM Idle Loop Animation ── */
+.atm-machine {
+    width: 70px; height: 90px;
+    background: linear-gradient(135deg, rgba(8,12,36,0.95), rgba(26,5,53,0.95));
+    border: 2px solid rgba(0,212,255,0.4);
+    border-radius: 10px; position: relative;
+    box-shadow: 0 0 20px rgba(0,212,255,0.2);
+    padding-top: 10px; margin: 15px auto 25px auto;
+}
+.atm-screen {
+    width: 46px; height: 26px;
+    background: rgba(0,255,178,0.85);
+    margin: 0 auto; border-radius: 4px;
+    box-shadow: 0 0 12px rgba(0,255,178,0.6);
+    animation: screenBlink 4s infinite alternate;
+}
+.atm-slot {
+    width: 36px; height: 4px;
+    background: #03050f; margin: 12px auto 0;
+    border-bottom: 1px solid rgba(0,212,255,0.6);
+    position: relative; border-radius: 2px;
+}
+.atm-cash {
+    width: 24px; height: 16px;
+    background: #00ffb2; margin: 0 auto;
+    position: absolute; left: 6px; top: 0;
+    border-radius: 2px;
+    animation: dispenseCash 3s infinite;
+    opacity: 0; z-index: -1;
+    box-shadow: 0 0 8px rgba(0,255,178,0.4);
+}
+@keyframes dispenseCash {
+    0% { transform: translateY(0); opacity: 0; }
+    30% { transform: translateY(12px); opacity: 1; }
+    70% { transform: translateY(12px); opacity: 1; }
+    100% { transform: translateY(22px); opacity: 0; }
+}
+@keyframes screenBlink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+/* ── Card Styling ── */
 .glass-card {
-    background: var(--glass-bg);
     backdrop-filter: var(--glass-blur);
     -webkit-backdrop-filter: var(--glass-blur);
-    border: 1px solid var(--glass-border);
     border-radius: var(--radius);
     padding: 1.4rem 1.6rem;
     margin-bottom: 1.2rem;
-    animation: slideUpFade 0.55s cubic-bezier(0.16,1,0.3,1) both;
-}
-.glass-card:hover {
-    border-color: rgba(0,212,255,0.35);
-    box-shadow: 0 4px 32px rgba(0,212,255,0.12);
-    transition: border-color 0.3s, box-shadow 0.3s;
+    /* Combine slide-in and morphing animations */
+    animation: slideUpFade 0.55s cubic-bezier(0.16,1,0.3,1) both, morphGlass 8s ease-in-out infinite alternate;
 }
 
-/* ── Neon heading ── */
+/* ── Dropdown / Expander Styling ── */
+[data-testid="stExpander"] {
+    background: rgba(255,255,255,0.03) !important;
+    border: 1px solid var(--glass-border) !important;
+    border-radius: var(--radius-sm) !important;
+    backdrop-filter: var(--glass-blur) !important;
+}
+[data-testid="stExpander"] summary {
+    color: var(--accent-blue) !important;
+    font-family: 'Orbitron', monospace !important;
+    font-size: 0.85rem !important;
+    letter-spacing: 1px !important;
+}
+.stCheckbox label p {
+    color: var(--text-primary) !important;
+    font-size: 0.85rem !important;
+}
+
 .neon-title {
     font-family: 'Orbitron', monospace !important;
     font-size: 2.6rem;
@@ -143,7 +214,6 @@ html, body, [class*="css"] {
     margin-bottom: 0.9rem;
 }
 
-/* ── KPI Metric Cards ── */
 .metric-card {
     background: linear-gradient(135deg, rgba(0,212,255,0.08) 0%, rgba(123,47,255,0.08) 100%);
     border: 1px solid rgba(0,212,255,0.22);
@@ -176,7 +246,6 @@ html, body, [class*="css"] {
     margin-top: 0.15rem;
 }
 
-/* ── Tab Bar ── */
 .stTabs [data-baseweb="tab-list"] {
     background: rgba(255,255,255,0.04) !important;
     border-radius: var(--radius-sm) !important;
@@ -202,23 +271,14 @@ html, body, [class*="css"] {
     box-shadow: 0 0 18px rgba(0,212,255,0.25) !important;
 }
 
-/* ── Sliders & Selectboxes ── */
 .stSlider > div > div > div { background: var(--accent-violet) !important; }
-.stSelectbox > div, .stMultiSelect > div {
-    background: rgba(255,255,255,0.06) !important;
-    border: 1px solid var(--glass-border) !important;
-    border-radius: var(--radius-sm) !important;
-    color: var(--text-primary) !important;
-}
-.stSlider label, .stSelectbox label, .stMultiSelect label,
-.stRadio label, .stCheckbox label {
+.stSlider label {
     color: var(--text-muted) !important;
     font-size: 0.82rem !important;
     letter-spacing: 0.8px !important;
     text-transform: uppercase !important;
 }
 
-/* ── DataFrames ── */
 .stDataFrame, [data-testid="stDataFrame"] {
     background: var(--glass-bg) !important;
     border: 1px solid var(--glass-border) !important;
@@ -226,7 +286,6 @@ html, body, [class*="css"] {
     backdrop-filter: var(--glass-blur) !important;
 }
 
-/* ── Buttons ── */
 .stButton > button, .stDownloadButton > button {
     background: linear-gradient(135deg, var(--accent-blue), var(--accent-violet)) !important;
     color: #fff !important;
@@ -245,7 +304,6 @@ html, body, [class*="css"] {
     box-shadow: 0 6px 24px rgba(0,212,255,0.35) !important;
 }
 
-/* ── Sidebar Labels & Dividers ── */
 .sidebar-section-header {
     font-family: 'Orbitron', monospace !important;
     font-size: 0.68rem;
@@ -258,7 +316,6 @@ html, body, [class*="css"] {
     border-bottom: 1px solid rgba(123,47,255,0.3);
 }
 
-/* ── Plotly chart backgrounds → transparent ── */
 .js-plotly-plot .plotly .bg { fill: transparent !important; }
 </style>
 """
@@ -283,7 +340,6 @@ PLOTLY_TEMPLATE = dict(
 )
 
 def apply_glass(fig: go.Figure, title: str = "", height: int = 450) -> go.Figure:
-    """Apply the glass-OS Plotly theme to any figure."""
     fig.update_layout(
         **PLOTLY_TEMPLATE,
         title=dict(text=title, font=dict(family="Orbitron, monospace", size=14, color="#00d4ff")),
@@ -293,16 +349,13 @@ def apply_glass(fig: go.Figure, title: str = "", height: int = 450) -> go.Figure
     return fig
 
 # ─────────────────────────────────────────────────────────────────────────────
-# 3.  DATA LOADING & PRE-PROCESSING  (FA-1 foundation)
+# 3.  DATA LOADING & PRE-PROCESSING
 # ─────────────────────────────────────────────────────────────────────────────
 DATA_PATH = "atm_cash_management_dataset.csv"
 
 @st.cache_data(show_spinner=False)
 def load_and_preprocess(path: str) -> pd.DataFrame:
-    """FA-1 automated preprocessing pipeline."""
     df = pd.read_csv(path)
-
-    # Date parsing
     df["Date"] = pd.to_datetime(df["Date"], errors="coerce")
     df["Month"]      = df["Date"].dt.month
     df["Day"]        = df["Date"].dt.day
@@ -310,21 +363,18 @@ def load_and_preprocess(path: str) -> pd.DataFrame:
     df["Year"]       = df["Date"].dt.year
     df["DayOfYear"]  = df["Date"].dt.dayofyear
 
-    # Missing value handling
     numeric_cols = df.select_dtypes(include=np.number).columns
     df[numeric_cols] = df[numeric_cols].fillna(df[numeric_cols].median())
     cat_cols = df.select_dtypes(include="object").columns.difference(["ATM_ID", "Date"])
     for col in cat_cols:
         df[col] = df[col].fillna(df[col].mode()[0])
 
-    # Label-encode categoricals
     le = LabelEncoder()
     df["Location_Type_Enc"] = le.fit_transform(df["Location_Type"].astype(str))
     df["Weather_Enc"]       = le.fit_transform(df["Weather_Condition"].astype(str))
     df["TimeOfDay_Enc"]     = le.fit_transform(df["Time_of_Day"].astype(str))
     df["DayOfWeek_Enc"]     = le.fit_transform(df["Day_of_Week"].astype(str))
 
-    # Derived KPIs
     df["Net_Flow"]          = df["Total_Deposits"] - df["Total_Withdrawals"]
     df["Cash_Utilisation"]  = (
         df["Total_Withdrawals"] /
@@ -335,16 +385,14 @@ def load_and_preprocess(path: str) -> pd.DataFrame:
 
 @st.cache_data(show_spinner=False)
 def get_cluster_features(df: pd.DataFrame, feature_cols: list) -> np.ndarray:
-    """Scale selected features for clustering."""
     scaler = StandardScaler()
     return scaler.fit_transform(df[feature_cols].fillna(0))
 
 # ─────────────────────────────────────────────────────────────────────────────
-# 4.  ML FUNCTIONS (Fixed for robust mathematical limits)
+# 4.  ML FUNCTIONS
 # ─────────────────────────────────────────────────────────────────────────────
 @st.cache_data(show_spinner=False)
 def run_kmeans(X: np.ndarray, k: int, random_state: int) -> tuple:
-    """Run K-Means and return labels + inertia values for elbow."""
     inertias, sil_scores = [], []
     k_range = range(2, min(12, len(X)))
     for ki in k_range:
@@ -358,22 +406,18 @@ def run_kmeans(X: np.ndarray, k: int, random_state: int) -> tuple:
     return labels, inertias, sil_scores, list(k_range)
 
 def run_isolation_forest(df: pd.DataFrame, contamination: float, feature_cols: list) -> pd.DataFrame:
-    """Detect anomalies with Isolation Forest. (FIXED: replaced fit_transform with decision_function)"""
     X = df[feature_cols].fillna(0).values
     iso = IsolationForest(contamination=contamination, random_state=42, n_estimators=200)
-    
-    # Fit the model and extract the decision scores properly
     iso.fit(X)
     
     df_out = df.copy()
-    df_out["Anomaly_Score"]  = iso.decision_function(X) * -1   # higher = more anomalous
-    df_out["Is_Anomaly"]     = iso.predict(X)                  # -1 = anomaly, 1 = normal
+    df_out["Anomaly_Score"]  = iso.decision_function(X) * -1
+    df_out["Is_Anomaly"]     = iso.predict(X)
     df_out["Anomaly_Label"]  = df_out["Is_Anomaly"].map({-1: "⚠ Anomaly", 1: "✔ Normal"})
     return df_out
 
 @st.cache_data(show_spinner=False)
 def compute_forecast(df: pd.DataFrame, days_ahead: int = 7) -> tuple:
-    """Simple exponential-smoothing forecast. (FIXED: Handles short date ranges securely)"""
     if df.empty:
         return pd.DataFrame(), pd.DataFrame()
         
@@ -388,7 +432,6 @@ def compute_forecast(df: pd.DataFrame, days_ahead: int = 7) -> tuple:
     if len(ts) == 0:
         return pd.DataFrame(), pd.DataFrame()
 
-    # Exponential smoothing
     alpha = 0.3
     smoothed = [ts["Avg_Cash_Demand"].iloc[0]]
     for val in ts["Avg_Cash_Demand"].iloc[1:]:
@@ -398,7 +441,6 @@ def compute_forecast(df: pd.DataFrame, days_ahead: int = 7) -> tuple:
     last_val   = ts["Smoothed"].iloc[-1]
     last_date  = ts["Date"].iloc[-1]
     
-    # Safely compute the slope without crashing on tiny datasets
     if len(ts) > 1:
         slope = ts["Smoothed"].diff().tail(30).mean()
         if pd.isna(slope): slope = 0
@@ -429,35 +471,50 @@ if not data_loaded:
     st.stop()
 
 # ─────────────────────────────────────────────────────────────────────────────
-# 6.  SIDEBAR — Glass Parameter Panel
+# 6.  SIDEBAR — ATM OS UI + Dropdowns
 # ─────────────────────────────────────────────────────────────────────────────
 with st.sidebar:
+    # ATM OS Header
     st.markdown(
-        '<div style="text-align:center; padding: 0.8rem 0 1rem;">'
-        '<span style="font-family:Orbitron,monospace; font-size:1.1rem; '
+        '<div style="text-align:center; padding: 0.5rem 0 0.5rem;">'
+        '<span style="font-family:Orbitron,monospace; font-size:1.6rem; '
         'background:linear-gradient(135deg,#00d4ff,#7b2fff); '
         '-webkit-background-clip:text; -webkit-text-fill-color:transparent; '
-        'font-weight:800; letter-spacing:2px;">🏧 ATM OS</span><br>'
+        'font-weight:800; letter-spacing:2px;">ATM OS</span><br>'
         '<span style="font-size:0.68rem; color:rgba(200,210,255,0.45); '
         'letter-spacing:1.5px;">INTELLIGENCE CONTROL PANEL</span>'
         '</div>',
         unsafe_allow_html=True,
     )
 
-    # ── Global Filters ──────────────────────────────────────────────────────
+    # Animated ATM Loop
+    st.markdown(
+        '''
+        <div class="atm-machine">
+            <div class="atm-screen"></div>
+            <div class="atm-slot">
+                <div class="atm-cash"></div>
+            </div>
+            <div style="display:flex; justify-content:center; gap:4px; margin-top:8px;">
+                <div style="width:5px; height:5px; background:#ff2d78; border-radius:50%;"></div>
+                <div style="width:5px; height:5px; background:#00d4ff; border-radius:50%;"></div>
+                <div style="width:5px; height:5px; background:#00ffb2; border-radius:50%;"></div>
+            </div>
+        </div>
+        ''',
+        unsafe_allow_html=True
+    )
+
+    # ── Global Filters (Checkboxes in Expanders) ──
     st.markdown('<div class="sidebar-section-header">Global Filters</div>', unsafe_allow_html=True)
 
     all_locations = sorted(df["Location_Type"].unique())
-    sel_locations = st.multiselect(
-        "Location Type", all_locations, default=all_locations,
-        key="loc_filter",
-    )
+    with st.expander("📍 Select Locations"):
+        sel_locations = [loc for loc in all_locations if st.checkbox(loc, value=True, key=f"chk_loc_{loc}")]
 
     all_weather = sorted(df["Weather_Condition"].unique())
-    sel_weather = st.multiselect(
-        "Weather Condition", all_weather, default=all_weather,
-        key="wx_filter",
-    )
+    with st.expander("⛅ Select Weather"):
+        sel_weather = [wx for wx in all_weather if st.checkbox(wx, value=True, key=f"chk_wx_{wx}")]
 
     date_min, date_max = df["Date"].min().date(), df["Date"].max().date()
     date_range = st.date_input(
@@ -465,36 +522,30 @@ with st.sidebar:
         min_value=date_min, max_value=date_max, key="date_range",
     )
 
-    # ── Clustering Parameters ───────────────────────────────────────────────
+    # ── Clustering Parameters ──
     st.markdown('<div class="sidebar-section-header">Clustering (K-Means)</div>', unsafe_allow_html=True)
 
     k_value = st.slider("Number of Clusters (K)", 2, 10, 4, key="k_val")
     km_random_state = st.slider("Random State", 0, 100, 42, key="km_rs")
-    cluster_features = st.multiselect(
-        "Cluster Features",
-        ["Total_Withdrawals", "Total_Deposits", "Nearby_Competitor_ATMs",
-         "Cash_Utilisation", "Net_Flow", "Previous_Day_Cash_Level"],
-        default=["Total_Withdrawals", "Total_Deposits",
-                 "Nearby_Competitor_ATMs", "Cash_Utilisation"],
-        key="cl_feat",
-    )
+    
+    all_cluster_features = ["Total_Withdrawals", "Total_Deposits", "Nearby_Competitor_ATMs", "Cash_Utilisation", "Net_Flow", "Previous_Day_Cash_Level"]
+    default_cl_features = ["Total_Withdrawals", "Total_Deposits", "Nearby_Competitor_ATMs", "Cash_Utilisation"]
+    with st.expander("🧩 Cluster Features"):
+        cluster_features = [f for f in all_cluster_features if st.checkbox(f, value=(f in default_cl_features), key=f"chk_cl_{f}")]
 
-    # ── Anomaly Detection Parameters ────────────────────────────────────────
+    # ── Anomaly Detection Parameters ──
     st.markdown('<div class="sidebar-section-header">Anomaly Detection</div>', unsafe_allow_html=True)
 
-    iso_contamination = st.slider(
-        "Contamination Rate", 0.01, 0.30, 0.05, step=0.01, key="iso_cont",
-    )
-    anomaly_features = st.multiselect(
-        "Anomaly Features",
-        ["Total_Withdrawals", "Cash_Demand_Next_Day",
-         "Previous_Day_Cash_Level", "Net_Flow"],
-        default=["Total_Withdrawals", "Cash_Demand_Next_Day"],
-        key="ano_feat",
-    )
+    iso_contamination = st.slider("Contamination Rate", 0.01, 0.30, 0.05, step=0.01, key="iso_cont")
+    
+    all_ano_features = ["Total_Withdrawals", "Cash_Demand_Next_Day", "Previous_Day_Cash_Level", "Net_Flow"]
+    default_ano_features = ["Total_Withdrawals", "Cash_Demand_Next_Day"]
+    with st.expander("🚨 Anomaly Features"):
+        anomaly_features = [f for f in all_ano_features if st.checkbox(f, value=(f in default_ano_features), key=f"chk_ano_{f}")]
+        
     holiday_only = st.checkbox("Holiday / Event Days Only", value=False, key="hol_only")
 
-    # ── Forecasting Parameters ──────────────────────────────────────────────
+    # ── Forecasting Parameters ──
     st.markdown('<div class="sidebar-section-header">Forecasting</div>', unsafe_allow_html=True)
     forecast_days = st.slider("Days to Forecast", 3, 30, 7, key="fc_days")
 
@@ -530,7 +581,7 @@ if dff.empty:
 # ─────────────────────────────────────────────────────────────────────────────
 st.markdown(
     '<div class="glass-card" style="margin-bottom:1.6rem;">'
-    '<div class="neon-title">🏧 ATM Intelligence · Glass OS</div>'
+    '<div class="neon-title">🏧 ATM Intelligence</div>'
     '<div class="neon-sub">'
     'Demand Forecasting & Behavioural Analytics — FA-2'
     '</div></div>',
@@ -930,7 +981,6 @@ with tab_forecast:
             marker=dict(size=7, color="#ff2d78"),
         ))
 
-        # Safe Confidence band calculation
         x_ci = fc_df["Date"].tolist() + fc_df["Date"].tolist()[::-1]
         y_ci = (fc_df["Forecast"] * 1.10).tolist() + (fc_df["Forecast"] * 0.90).tolist()[::-1]
         
