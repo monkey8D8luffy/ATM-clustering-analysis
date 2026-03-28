@@ -74,11 +74,29 @@ html, body, [class*="css"] {
 #MainMenu, footer, header,
 .stDeployButton, [data-testid="stToolbar"] { display: none !important; }
 
+/* ── Custom Scrollbar to reveal hidden sidebar elements ── */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 10px;
+}
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, var(--accent-blue), var(--accent-violet));
+    border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, var(--accent-violet), var(--accent-rose));
+}
+
 /* ── Sidebar — Glass Panel ── */
 [data-testid="stSidebar"] {
     background: rgba(8, 12, 36, 0.75) !important;
     backdrop-filter: var(--glass-blur) !important;
     border-right: 1px solid var(--glass-border) !important;
+    overflow-y: auto !important; /* Force vertical scroll */
 }
 [data-testid="stSidebar"] > div:first-child { padding-top: 1.5rem; }
 
@@ -161,7 +179,6 @@ html, body, [class*="css"] {
     border-radius: var(--radius);
     padding: 1.4rem 1.6rem;
     margin-bottom: 1.2rem;
-    /* Combine slide-in and morphing animations */
     animation: slideUpFade 0.55s cubic-bezier(0.16,1,0.3,1) both, morphGlass 8s ease-in-out infinite alternate;
 }
 
