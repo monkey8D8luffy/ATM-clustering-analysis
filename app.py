@@ -27,7 +27,7 @@ warnings.filterwarnings("ignore")
 # 0.  PAGE CONFIG
 # ─────────────────────────────────────────────────────────────────────────────
 st.set_page_config(
-    page_title="ATM Intelligence · Glass OS",
+    page_title="ATM Intelligence",
     page_icon="🏧",
     layout="wide",
     initial_sidebar_state="expanded",
