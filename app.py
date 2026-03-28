@@ -24,7 +24,7 @@ import io
 warnings.filterwarnings("ignore")
 
 # ─────────────────────────────────────────────────────────────────────────────
-# 0.  PAGE CONFIG  (must be the very first Streamlit call)
+# 0.  PAGE CONFIG
 # ─────────────────────────────────────────────────────────────────────────────
 st.set_page_config(
     page_title="ATM Intelligence · Glass OS",
@@ -299,12 +299,10 @@ DATA_PATH = "atm_cash_management_dataset.csv"
 
 @st.cache_data(show_spinner=False)
 def load_and_preprocess(path: str) -> pd.DataFrame:
-    """
-    FA-1 automated preprocessing pipeline.
-    """
+    """FA-1 automated preprocessing pipeline."""
     df = pd.read_csv(path)
 
-    # ── Date parsing ──────────────────────────────────────────────────────
+    # Date parsing
     df["Date"] = pd.to_datetime(df["Date"], errors="coerce")
     df["Month"]      = df["Date"].dt.month
     df["Day"]        = df["Date"].dt.day
@@ -312,21 +310,21 @@ def load_and_preprocess(path: str) -> pd.DataFrame:
     df["Year"]       = df["Date"].dt.year
     df["DayOfYear"]  = df["Date"].dt.dayofyear
 
-    # ── Missing value handling ────────────────────────────────────────────
+    # Missing value handling
     numeric_cols = df.select_dtypes(include=np.number).columns
     df[numeric_cols] = df[numeric_cols].fillna(df[numeric_cols].median())
     cat_cols = df.select_dtypes(include="object").columns.difference(["ATM_ID", "Date"])
     for col in cat_cols:
         df[col] = df[col].fillna(df[col].mode()[0])
 
-    # ── Label-encode categoricals (store mapping) ─────────────────────────
+    # Label-encode categoricals
     le = LabelEncoder()
     df["Location_Type_Enc"] = le.fit_transform(df["Location_Type"].astype(str))
     df["Weather_Enc"]       = le.fit_transform(df["Weather_Condition"].astype(str))
     df["TimeOfDay_Enc"]     = le.fit_transform(df["Time_of_Day"].astype(str))
     df["DayOfWeek_Enc"]     = le.fit_transform(df["Day_of_Week"].astype(str))
 
-    # ── Derived KPIs ──────────────────────────────────────────────────────
+    # Derived KPIs
     df["Net_Flow"]          = df["Total_Deposits"] - df["Total_Withdrawals"]
     df["Cash_Utilisation"]  = (
         df["Total_Withdrawals"] /
@@ -342,7 +340,7 @@ def get_cluster_features(df: pd.DataFrame, feature_cols: list) -> np.ndarray:
     return scaler.fit_transform(df[feature_cols].fillna(0))
 
 # ─────────────────────────────────────────────────────────────────────────────
-# 4.  ML FUNCTIONS
+# 4.  ML FUNCTIONS (Fixed for robust mathematical limits)
 # ─────────────────────────────────────────────────────────────────────────────
 @st.cache_data(show_spinner=False)
 def run_kmeans(X: np.ndarray, k: int, random_state: int) -> tuple:
@@ -355,26 +353,30 @@ def run_kmeans(X: np.ndarray, k: int, random_state: int) -> tuple:
         inertias.append(km.inertia_)
         sil_scores.append(silhouette_score(X, lbl))
 
-    # Fit final model with chosen K
     final_km = KMeans(n_clusters=k, random_state=random_state, n_init=10)
     labels = final_km.fit_predict(X)
     return labels, inertias, sil_scores, list(k_range)
 
 def run_isolation_forest(df: pd.DataFrame, contamination: float, feature_cols: list) -> pd.DataFrame:
-    """Detect anomalies with Isolation Forest."""
+    """Detect anomalies with Isolation Forest. (FIXED: replaced fit_transform with decision_function)"""
     X = df[feature_cols].fillna(0).values
     iso = IsolationForest(contamination=contamination, random_state=42, n_estimators=200)
-    df = df.copy()
-    df["Anomaly_Score"]  = iso.fit_transform(X)[:, 0] * -1   # higher = more anomalous
-    df["Is_Anomaly"]     = iso.fit_predict(X)               # -1 = anomaly, 1 = normal
-    df["Anomaly_Label"]  = df["Is_Anomaly"].map({-1: "⚠ Anomaly", 1: "✔ Normal"})
-    return df
+    
+    # Fit the model and extract the decision scores properly
+    iso.fit(X)
+    
+    df_out = df.copy()
+    df_out["Anomaly_Score"]  = iso.decision_function(X) * -1   # higher = more anomalous
+    df_out["Is_Anomaly"]     = iso.predict(X)                  # -1 = anomaly, 1 = normal
+    df_out["Anomaly_Label"]  = df_out["Is_Anomaly"].map({-1: "⚠ Anomaly", 1: "✔ Normal"})
+    return df_out
 
 @st.cache_data(show_spinner=False)
 def compute_forecast(df: pd.DataFrame, days_ahead: int = 7) -> tuple:
-    """
-    Simple exponential-smoothing / moving-average forecast.
-    """
+    """Simple exponential-smoothing forecast. (FIXED: Handles short date ranges securely)"""
+    if df.empty:
+        return pd.DataFrame(), pd.DataFrame()
+        
     ts = (
         df.groupby("Date")["Cash_Demand_Next_Day"]
         .mean()
@@ -383,20 +385,27 @@ def compute_forecast(df: pd.DataFrame, days_ahead: int = 7) -> tuple:
     )
     ts.columns = ["Date", "Avg_Cash_Demand"]
 
-    # Exponential smoothing (alpha = 0.3)
+    if len(ts) == 0:
+        return pd.DataFrame(), pd.DataFrame()
+
+    # Exponential smoothing
     alpha = 0.3
     smoothed = [ts["Avg_Cash_Demand"].iloc[0]]
     for val in ts["Avg_Cash_Demand"].iloc[1:]:
         smoothed.append(alpha * val + (1 - alpha) * smoothed[-1])
     ts["Smoothed"] = smoothed
 
-    # Project forward using last smoothed value + slight upward trend
     last_val   = ts["Smoothed"].iloc[-1]
     last_date  = ts["Date"].iloc[-1]
-    slope      = ts["Smoothed"].diff().tail(30).mean()
-    if pd.isna(slope): slope = 0
     
-    future_dates = pd.date_range(last_date + pd.Timedelta(days=1), periods=days_ahead)
+    # Safely compute the slope without crashing on tiny datasets
+    if len(ts) > 1:
+        slope = ts["Smoothed"].diff().tail(30).mean()
+        if pd.isna(slope): slope = 0
+    else:
+        slope = 0
+    
+    future_dates = pd.date_range(start=last_date + pd.Timedelta(days=1), periods=days_ahead)
     future_vals  = [last_val + slope * (i + 1) for i in range(days_ahead)]
 
     forecast_df = pd.DataFrame({"Date": future_dates, "Forecast": future_vals})
@@ -513,7 +522,7 @@ mask = (
 dff = df[mask].copy()
 
 if dff.empty:
-    st.warning("⚠ No data matches your current filters. Please widen the selection.")
+    st.warning("⚠ No data matches your current filters. Please widen the selection to view data.")
     st.stop()
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -571,11 +580,9 @@ tab_eda, tab_cluster, tab_anomaly, tab_forecast, tab_export = st.tabs([
 # TAB A — EXPLORATORY DATA ANALYSIS
 # ═════════════════════════════════════════════════════════════════════════════
 with tab_eda:
-    # ── Row 1 : Distribution histograms ─────────────────────────────────────
     st.markdown('<div class="section-title">Distribution Analysis</div>', unsafe_allow_html=True)
 
     col_h1, col_h2 = st.columns(2)
-
     with col_h1:
         st.markdown('<div class="glass-card">', unsafe_allow_html=True)
         fig_wdraw = px.histogram(
@@ -586,12 +593,6 @@ with tab_eda:
         apply_glass(fig_wdraw, "Distribution — Total Withdrawals", 350)
         fig_wdraw.update_traces(opacity=0.78)
         st.plotly_chart(fig_wdraw, use_container_width=True, config={"displayModeBar": False})
-        st.markdown(
-            '<div style="font-size:0.76rem; color:rgba(200,210,255,0.55);">'
-            '📌 Most ATMs process $25K–75K per period. The long right tail '
-            'indicates high-traffic outlier locations.</div>',
-            unsafe_allow_html=True,
-        )
         st.markdown('</div>', unsafe_allow_html=True)
 
     with col_h2:
@@ -604,17 +605,10 @@ with tab_eda:
         apply_glass(fig_dep, "Distribution — Total Deposits", 350)
         fig_dep.update_traces(opacity=0.78)
         st.plotly_chart(fig_dep, use_container_width=True, config={"displayModeBar": False})
-        st.markdown(
-            '<div style="font-size:0.76rem; color:rgba(200,210,255,0.55);">'
-            '📌 Deposits are strongly right-skewed; a small fraction of ATMs '
-            'receive outsized deposit volumes — likely bank-branch types.</div>',
-            unsafe_allow_html=True,
-        )
         st.markdown('</div>', unsafe_allow_html=True)
 
     st.markdown("<br>", unsafe_allow_html=True)
 
-    # ── Row 2 : Time-based trends ────────────────────────────────────────────
     st.markdown('<div class="section-title">Time-Based Trends</div>', unsafe_allow_html=True)
 
     daily_agg = (
@@ -638,16 +632,9 @@ with tab_eda:
     apply_glass(fig_ts, "Daily Average Withdrawal & Deposit Trends", 380)
     st.markdown('<div class="glass-card">', unsafe_allow_html=True)
     st.plotly_chart(fig_ts, use_container_width=True, config={"displayModeBar": False})
-    st.markdown(
-        '<div style="font-size:0.76rem; color:rgba(200,210,255,0.55);">'
-        '📌 Withdrawals consistently exceed deposits, creating a net cash outflow. '
-        'End-of-month peaks are visible.</div>',
-        unsafe_allow_html=True,
-    )
     st.markdown('</div>', unsafe_allow_html=True)
 
     col_dow, col_tod = st.columns(2)
-
     with col_dow:
         st.markdown('<div class="glass-card">', unsafe_allow_html=True)
         dow_order = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"]
@@ -678,9 +665,7 @@ with tab_eda:
 
     st.markdown("<br>", unsafe_allow_html=True)
 
-    # ── Row 3 : Relationship Analysis (3D + heatmap) ─────────────────────────
     st.markdown('<div class="section-title">3D Relationship Explorer</div>', unsafe_allow_html=True)
-
     st.markdown('<div class="glass-card">', unsafe_allow_html=True)
     fig_3d = px.scatter_3d(
         dff.sample(min(4000, len(dff)), random_state=1),
@@ -747,9 +732,7 @@ with tab_cluster:
         }
         dff_cl["Cluster_Label"] = dff_cl["Cluster"].map(rank_labels)
 
-        # ── Elbow + Silhouette ──────────────────────────────────────────────
         col_el, col_sil = st.columns(2)
-
         with col_el:
             st.markdown('<div class="glass-card">', unsafe_allow_html=True)
             fig_el = go.Figure()
@@ -788,10 +771,8 @@ with tab_cluster:
 
         st.markdown("<br>", unsafe_allow_html=True)
 
-        # ── 3D Cluster Scatter ──────────────────────────────────────────────
         st.markdown('<div class="section-title">3D Cluster Visualisation</div>', unsafe_allow_html=True)
         st.markdown('<div class="glass-card">', unsafe_allow_html=True)
-
         sample_cl = dff_cl.sample(min(5000, len(dff_cl)), random_state=7)
         fig_3dcl = px.scatter_3d(
             sample_cl,
@@ -816,7 +797,6 @@ with tab_cluster:
         st.plotly_chart(fig_3dcl, use_container_width=True, config={"displayModeBar": False})
         st.markdown('</div>', unsafe_allow_html=True)
 
-        # ── 2D Cluster bar by location ──────────────────────────────────────
         st.markdown('<div class="glass-card" style="margin-top:1rem;">', unsafe_allow_html=True)
         cl_loc = dff_cl.groupby(["Cluster_Label","Location_Type"]).size().reset_index(name="Count")
         fig_clbar = px.bar(
@@ -903,7 +883,6 @@ with tab_anomaly:
             st.plotly_chart(fig_ano, use_container_width=True, config={"displayModeBar": False})
             st.markdown('</div>', unsafe_allow_html=True)
 
-            # ── Anomaly Records Table ──────────────────────────────────────
             st.markdown('<div class="section-title">Anomaly Records — Detail View</div>', unsafe_allow_html=True)
             display_cols = ["ATM_ID","Date","Location_Type","Total_Withdrawals",
                             "Cash_Demand_Next_Day","Holiday_Flag","Special_Event_Flag",
@@ -927,64 +906,62 @@ with tab_forecast:
 
     ts_df, fc_df = compute_forecast(dff, forecast_days)
 
-    st.markdown('<div class="glass-card">', unsafe_allow_html=True)
-    fig_fc = go.Figure()
+    if not ts_df.empty and not fc_df.empty:
+        st.markdown('<div class="glass-card">', unsafe_allow_html=True)
+        fig_fc = go.Figure()
 
-    # Historical actual
-    fig_fc.add_trace(go.Scatter(
-        x=ts_df["Date"], y=ts_df["Avg_Cash_Demand"],
-        name="Actual (avg)", mode="lines",
-        line=dict(color="rgba(0,212,255,0.35)", width=1.2),
-    ))
+        fig_fc.add_trace(go.Scatter(
+            x=ts_df["Date"], y=ts_df["Avg_Cash_Demand"],
+            name="Actual (avg)", mode="lines",
+            line=dict(color="rgba(0,212,255,0.35)", width=1.2),
+        ))
 
-    # Smoothed historical
-    fig_fc.add_trace(go.Scatter(
-        x=ts_df["Date"], y=ts_df["Smoothed"],
-        name="Smoothed (α=0.3)", mode="lines",
-        line=dict(color="#00d4ff", width=2.2),
-        fill="tozeroy", fillcolor="rgba(0,212,255,0.06)",
-    ))
+        fig_fc.add_trace(go.Scatter(
+            x=ts_df["Date"], y=ts_df["Smoothed"],
+            name="Smoothed (α=0.3)", mode="lines",
+            line=dict(color="#00d4ff", width=2.2),
+            fill="tozeroy", fillcolor="rgba(0,212,255,0.06)",
+        ))
 
-    # Forecast
-    fig_fc.add_trace(go.Scatter(
-        x=fc_df["Date"], y=fc_df["Forecast"],
-        name=f"Forecast (+{forecast_days}d)", mode="lines+markers",
-        line=dict(color="#ff2d78", width=2.4, dash="dot"),
-        marker=dict(size=7, color="#ff2d78"),
-    ))
+        fig_fc.add_trace(go.Scatter(
+            x=fc_df["Date"], y=fc_df["Forecast"],
+            name=f"Forecast (+{forecast_days}d)", mode="lines+markers",
+            line=dict(color="#ff2d78", width=2.4, dash="dot"),
+            marker=dict(size=7, color="#ff2d78"),
+        ))
 
-    # Confidence band (±10% heuristic)
-    x_ci = fc_df["Date"].tolist() + fc_df["Date"].tolist()[::-1]
-    y_ci = (fc_df["Forecast"] * 1.10).tolist() + (fc_df["Forecast"] * 0.90).tolist()[::-1]
-    
-    fig_fc.add_trace(go.Scatter(
-        x=x_ci, y=y_ci,
-        fill="toself",
-        fillcolor="rgba(255,45,120,0.09)",
-        line=dict(color="rgba(255,45,120,0)"),
-        name="±10% CI",
-        hoverinfo="skip",
-    ))
+        # Safe Confidence band calculation
+        x_ci = fc_df["Date"].tolist() + fc_df["Date"].tolist()[::-1]
+        y_ci = (fc_df["Forecast"] * 1.10).tolist() + (fc_df["Forecast"] * 0.90).tolist()[::-1]
+        
+        fig_fc.add_trace(go.Scatter(
+            x=x_ci, y=y_ci,
+            fill="toself",
+            fillcolor="rgba(255,45,120,0.09)",
+            line=dict(color="rgba(255,45,120,0)"),
+            name="±10% CI",
+            hoverinfo="skip",
+        ))
 
-    # Mark today
-    last_hist = ts_df["Date"].max()
-    fig_fc.add_vline(
-        x=last_hist, line_dash="dash",
-        line_color="rgba(255,179,0,0.6)", line_width=1.5,
-    )
-    
-    apply_glass(fig_fc, f"Cash Demand Trend + {forecast_days}-Day Forecast", 500)
-    st.plotly_chart(fig_fc, use_container_width=True, config={"displayModeBar": False})
-    st.markdown('</div>', unsafe_allow_html=True)
+        last_hist = ts_df["Date"].max()
+        fig_fc.add_vline(
+            x=last_hist, line_dash="dash",
+            line_color="rgba(255,179,0,0.6)", line_width=1.5,
+        )
+        
+        apply_glass(fig_fc, f"Cash Demand Trend + {forecast_days}-Day Forecast", 500)
+        st.plotly_chart(fig_fc, use_container_width=True, config={"displayModeBar": False})
+        st.markdown('</div>', unsafe_allow_html=True)
 
-    # ── Forecast Table ──────────────────────────────────────────────────────
-    st.markdown('<div class="section-title">Forecast Values</div>', unsafe_allow_html=True)
-    fc_display = fc_df.copy()
-    fc_display["Lower_CI"] = (fc_display["Forecast"] * 0.90).round(0)
-    fc_display["Upper_CI"] = (fc_display["Forecast"] * 1.10).round(0)
-    fc_display["Forecast"] = fc_display["Forecast"].round(0)
-    fc_display["Date"] = fc_display["Date"].dt.strftime("%Y-%m-%d")
-    st.dataframe(fc_display.reset_index(drop=True), use_container_width=True, hide_index=True)
+        st.markdown('<div class="section-title">Forecast Values</div>', unsafe_allow_html=True)
+        fc_display = fc_df.copy()
+        fc_display["Lower_CI"] = (fc_display["Forecast"] * 0.90).round(0)
+        fc_display["Upper_CI"] = (fc_display["Forecast"] * 1.10).round(0)
+        fc_display["Forecast"] = fc_display["Forecast"].round(0)
+        fc_display["Date"] = fc_display["Date"].dt.strftime("%Y-%m-%d")
+        st.dataframe(fc_display.reset_index(drop=True), use_container_width=True, hide_index=True)
+    else:
+        st.warning("⚠ Not enough data available to generate a forecast. Please expand your date range.")
 
 # ═════════════════════════════════════════════════════════════════════════════
 # TAB E — EXPORT ENGINE
@@ -1004,13 +981,11 @@ with tab_export:
 
     export_df = dff.copy()
 
-    # Attach cluster labels if clustering was run
     if len(cluster_features) >= 2:
         X_exp = get_cluster_features(dff, cluster_features)
         labels_exp, _, _, _ = run_kmeans(X_exp, k_value, km_random_state)
         export_df["Cluster_ID"] = labels_exp
 
-    # Attach anomaly flags
     if len(anomaly_features) >= 1:
         df_exp_ano = run_isolation_forest(export_df, iso_contamination, anomaly_features)
         export_df["Anomaly_Score"]  = df_exp_ano["Anomaly_Score"].values
@@ -1038,7 +1013,6 @@ with tab_export:
 
     st.markdown("<br>", unsafe_allow_html=True)
 
-    # ── Download button ─────────────────────────────────────────────────────
     buf = io.StringIO()
     export_df.to_csv(buf, index=False)
     csv_bytes = buf.getvalue().encode("utf-8")
