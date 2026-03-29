@@ -265,22 +265,6 @@ html, body, [class*="css"] {
 
 st.markdown(GLASS_CSS, unsafe_allow_html=True)
 
-# ─────────────────────────────────────────────────────────────────────────────
-# ADD THIS: Toggle Switch for the Sidebar
-# ─────────────────────────────────────────────────────────────────────────────
-col_toggle, _ = st.columns([1, 4])
-with col_toggle:
-    show_sidebar = st.toggle("🎛️ Toggle ATM OS Panel", value=True)
-
-# If the toggle is turned off, inject CSS to hide the sidebar element completely
-if not show_sidebar:
-    st.markdown("""
-        <style>
-            [data-testid="stSidebar"] {
-                display: none !important;
-            }
-        </style>
-    """, unsafe_allow_html=True)
 
 
 # ─────────────────────────────────────────────────────────────────────────────
