@@ -252,8 +252,30 @@ html, body, [class*="css"] {
     to { opacity: 1; transform: scaleY(1) translateY(0); }
 }
 
-/* ── Sliders & Selectboxes ── */
-.stSlider > div > div > div { background: var(--accent-violet) !important; }
+/* ── Smooth Sliders & Selectboxes ── */
+.stSlider > div > div > div { 
+    background: linear-gradient(90deg, var(--accent-blue), var(--accent-violet)) !important; 
+    transition: width 0.15s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
+}
+/* Slider Thumb Target */
+.stSlider div[role="slider"] {
+    background-color: #ffffff !important;
+    border: 2px solid var(--accent-violet) !important;
+    box-shadow: 0 0 10px rgba(123, 47, 255, 0.4) !important;
+    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease, border-color 0.2s ease !important;
+}
+.stSlider div[role="slider"]:hover {
+    transform: scale(1.3) !important;
+    box-shadow: 0 0 20px rgba(0, 212, 255, 0.8) !important;
+    border-color: var(--accent-blue) !important;
+    cursor: grab !important;
+}
+.stSlider div[role="slider"]:active {
+    transform: scale(1.1) !important;
+    box-shadow: 0 0 15px rgba(0, 212, 255, 0.9) !important;
+    cursor: grabbing !important;
+}
+
 .stSelectbox > div {
     background: rgba(255,255,255,0.06) !important;
     border: 1px solid var(--glass-border) !important;
