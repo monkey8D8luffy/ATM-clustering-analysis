@@ -215,20 +215,70 @@ html, body, [class*="css"] {
     box-shadow: 0 0 18px rgba(0,212,255,0.25) !important;
 }
 
+/* ── Dropdown / Expander Checkbox Lists (Glass Animation) ── */
+[data-testid="stExpander"] {
+    background: rgba(255, 255, 255, 0.03) !important;
+    border: 1px solid var(--glass-border) !important;
+    border-radius: var(--radius-sm) !important;
+    backdrop-filter: var(--glass-blur) !important;
+    -webkit-backdrop-filter: var(--glass-blur) !important;
+    margin-bottom: 1rem !important;
+    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
+}
+[data-testid="stExpander"]:hover {
+    background: rgba(255, 255, 255, 0.08) !important;
+    border-color: rgba(0, 212, 255, 0.4) !important;
+    box-shadow: 0 4px 20px rgba(0, 212, 255, 0.15) !important;
+}
+[data-testid="stExpander"] summary {
+    color: var(--text-muted) !important;
+    font-family: 'Rajdhani', sans-serif !important;
+    font-weight: 600 !important;
+    font-size: 0.85rem !important;
+    letter-spacing: 1px !important;
+    text-transform: uppercase !important;
+    padding: 0.8rem 1rem !important;
+}
+[data-testid="stExpander"] summary:hover {
+    color: var(--accent-blue) !important;
+}
+[data-testid="stExpanderDetails"] {
+    animation: slideDownFade 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+    padding: 0.5rem 1rem 1rem 1rem !important;
+    transform-origin: top;
+}
+@keyframes slideDownFade {
+    from { opacity: 0; transform: scaleY(0.95) translateY(-10px); }
+    to { opacity: 1; transform: scaleY(1) translateY(0); }
+}
+
 /* ── Sliders & Selectboxes ── */
 .stSlider > div > div > div { background: var(--accent-violet) !important; }
-.stSelectbox > div, .stMultiSelect > div {
+.stSelectbox > div {
     background: rgba(255,255,255,0.06) !important;
     border: 1px solid var(--glass-border) !important;
     border-radius: var(--radius-sm) !important;
     color: var(--text-primary) !important;
 }
-.stSlider label, .stSelectbox label, .stMultiSelect label,
+.stSlider label, .stSelectbox label, 
 .stRadio label, .stCheckbox label {
     color: var(--text-muted) !important;
     font-size: 0.82rem !important;
     letter-spacing: 0.8px !important;
     text-transform: uppercase !important;
+}
+
+/* Checkbox Hover Animations */
+[data-testid="stCheckbox"] {
+    background: rgba(255,255,255,0.02);
+    padding: 0.4rem 0.8rem;
+    border-radius: 8px;
+    margin-bottom: 0.2rem;
+    transition: background 0.3s ease, transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+[data-testid="stCheckbox"]:hover {
+    background: rgba(0, 212, 255, 0.1);
+    transform: translateX(6px);
 }
 
 /* ── DataFrames ── */
@@ -481,30 +531,49 @@ def settings_dialog():
 
     # ── Global Filters
     st.markdown('<div class="sidebar-section-header">Global Filters</div>', unsafe_allow_html=True)
-    st.multiselect("Location Type", all_locations, key="loc_filter")
-    st.multiselect("Weather Condition", all_weather, key="wx_filter")
+    
+    with st.expander("📍 Location Type"):
+        temp_locs = []
+        for loc in all_locations:
+            if st.checkbox(loc, value=(loc in st.session_state.loc_filter), key=f"loc_chk_{loc}"):
+                temp_locs.append(loc)
+        st.session_state.loc_filter = temp_locs
+
+    with st.expander("⛅ Weather Condition"):
+        temp_wx = []
+        for wx in all_weather:
+            if st.checkbox(wx, value=(wx in st.session_state.wx_filter), key=f"wx_chk_{wx}"):
+                temp_wx.append(wx)
+        st.session_state.wx_filter = temp_wx
+        
     st.date_input("Date Range", min_value=date_min, max_value=date_max, key="date_range")
 
     # ── Clustering Parameters
     st.markdown('<div class="sidebar-section-header">Clustering (K-Means)</div>', unsafe_allow_html=True)
     st.slider("Number of Clusters (K)", 2, 10, key="k_val")
     st.slider("Random State", 0, 100, key="km_rs")
-    st.multiselect(
-        "Cluster Features",
-        ["Total_Withdrawals", "Total_Deposits", "Nearby_Competitor_ATMs",
-         "Cash_Utilisation", "Net_Flow", "Previous_Day_Cash_Level"],
-        key="cl_feat"
-    )
+    
+    cl_opts = ["Total_Withdrawals", "Total_Deposits", "Nearby_Competitor_ATMs",
+               "Cash_Utilisation", "Net_Flow", "Previous_Day_Cash_Level"]
+    with st.expander("🔵 Cluster Features"):
+        temp_cl = []
+        for feat in cl_opts:
+            if st.checkbox(feat, value=(feat in st.session_state.cl_feat), key=f"cl_chk_{feat}"):
+                temp_cl.append(feat)
+        st.session_state.cl_feat = temp_cl
 
     # ── Anomaly Detection Parameters
     st.markdown('<div class="sidebar-section-header">Anomaly Detection</div>', unsafe_allow_html=True)
     st.slider("Contamination Rate", 0.01, 0.30, step=0.01, key="iso_cont")
-    st.multiselect(
-        "Anomaly Features",
-        ["Total_Withdrawals", "Cash_Demand_Next_Day",
-         "Previous_Day_Cash_Level", "Net_Flow"],
-        key="ano_feat"
-    )
+    
+    ano_opts = ["Total_Withdrawals", "Cash_Demand_Next_Day", "Previous_Day_Cash_Level", "Net_Flow"]
+    with st.expander("⚠ Anomaly Features"):
+        temp_ano = []
+        for feat in ano_opts:
+            if st.checkbox(feat, value=(feat in st.session_state.ano_feat), key=f"ano_chk_{feat}"):
+                temp_ano.append(feat)
+        st.session_state.ano_feat = temp_ano
+        
     st.checkbox("Holiday / Event Days Only", key="hol_only")
 
     # ── Forecasting Parameters
