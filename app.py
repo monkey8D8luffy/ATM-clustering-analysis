@@ -34,7 +34,7 @@ st.set_page_config(
 )
 
 # ─────────────────────────────────────────────────────────────────────────────
-# 1.  CUSTOM CSS  — Glass OS / Layout Overrides / Water Drop Morph
+# 1.  CUSTOM CSS  — Glass OS / Glassmorphism Theme
 # ─────────────────────────────────────────────────────────────────────────────
 GLASS_CSS = """
 <style>
@@ -77,85 +77,10 @@ html, body, [class*="css"] {
 [data-testid="collapsedControl"] { display: none !important; }
 [data-testid="stSidebar"] { display: none !important; }
 
-/* ── Main content wrapper (Padding added for Fixed Header Layout) ── */
+/* ── Main content wrapper ── */
 .block-container {
-    padding: 7rem 2rem 3rem 2rem !important;
+    padding: 1.5rem 2rem 3rem 2rem !important;
     max-width: 100% !important;
-}
-
-/* ── Fixed Layout: Top Title ── */
-.top-title-img {
-    position: fixed;
-    top: 1.8rem;
-    left: 2.5rem;
-    z-index: 1000;
-    font-family: 'Orbitron', monospace;
-    font-size: 1.8rem;
-    font-weight: 800;
-    color: var(--text-primary);
-    letter-spacing: 1px;
-    text-shadow: 0 0 10px rgba(0,212,255,0.4);
-}
-
-/* ── Fixed Layout: Center Pill Tabs ── */
-[data-testid="stTabs"] > div:first-child {
-    position: fixed;
-    top: 1.5rem;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 1000;
-    background: rgba(8, 12, 36, 0.6) !important;
-    backdrop-filter: blur(15px) !important;
-    -webkit-backdrop-filter: blur(15px) !important;
-    border-radius: 40px !important;
-    padding: 6px !important;
-    border: 1px solid rgba(255,255,255,0.1) !important;
-    width: max-content;
-    display: flex;
-    gap: 8px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-}
-
-[data-testid="stTabs"] [data-baseweb="tab"] {
-    font-family: 'Rajdhani', sans-serif !important;
-    font-size: 0.95rem !important;
-    font-weight: 600 !important;
-    letter-spacing: 1px !important;
-    color: var(--text-primary) !important;
-    background: transparent !important;
-    border-radius: 30px !important;
-    padding: 0.6rem 1.4rem !important;
-    border: none !important;
-    transition: all 0.3s ease !important;
-}
-[data-testid="stTabs"] [aria-selected="true"] {
-    background: linear-gradient(135deg, rgba(123,47,255,0.5), rgba(0,212,255,0.4)) !important;
-    color: #fff !important;
-    box-shadow: 0 0 18px rgba(123,47,255,0.3) !important;
-}
-
-/* ── Fixed Layout: Top Right Setting Button ── */
-[data-testid="stButton"]:first-of-type {
-    position: fixed;
-    top: 1.5rem;
-    right: 2.5rem;
-    z-index: 1000;
-}
-[data-testid="stButton"]:first-of-type button {
-    border-radius: 30px !important;
-    background: rgba(8, 12, 36, 0.6) !important;
-    border: 1px solid rgba(255,255,255,0.1) !important;
-    backdrop-filter: blur(15px) !important;
-    padding: 0.6rem 2.2rem !important;
-    font-family: 'Rajdhani', sans-serif !important;
-    font-weight: 600 !important;
-    font-size: 0.95rem !important;
-    color: var(--text-primary) !important;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-}
-[data-testid="stButton"]:first-of-type button:hover {
-    background: rgba(123,47,255,0.4) !important;
-    box-shadow: 0 0 20px rgba(123,47,255,0.4) !important;
 }
 
 /* ── Dialog / Pop-up Glassmorphism Animation ── */
@@ -169,7 +94,7 @@ html, body, [class*="css"] {
     animation: glassMorph 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
 }
 [data-testid="stModal"] {
-    background: rgba(3, 5, 15, 0.7) !important;
+    background: rgba(3, 5, 15, 0.7) !important; /* backdrop dimming */
     backdrop-filter: blur(8px) !important;
 }
 @keyframes glassMorph {
@@ -177,73 +102,48 @@ html, body, [class*="css"] {
     100% { opacity: 1; transform: scale(1) translateY(0); }
 }
 
+/* ── Animated slide-in for main sections ── */
 @keyframes slideUpFade {
     from { opacity: 0; transform: translateY(32px); }
     to   { opacity: 1; transform: translateY(0);   }
 }
 
-/* ── WATER DROP MORPH ANIMATION ── */
-@keyframes waterDropMorph {
-    0%   { border-radius: 20px 20px 20px 20px; box-shadow: 0 4px 15px rgba(0,212,255,0.10); }
-    25%  { border-radius: 28px 15px 22px 18px; box-shadow: 0 6px 20px rgba(123,47,255,0.15); }
-    50%  { border-radius: 18px 28px 15px 22px; box-shadow: 0 4px 15px rgba(0,212,255,0.10); }
-    75%  { border-radius: 22px 18px 28px 15px; box-shadow: 0 6px 20px rgba(123,47,255,0.15); }
-    100% { border-radius: 20px 20px 20px 20px; box-shadow: 0 4px 15px rgba(0,212,255,0.10); }
-}
-
-/* ── KPI Metric Cards (With Water Drop Morph) ── */
-.metric-card {
-    background: linear-gradient(135deg, rgba(0,212,255,0.12) 0%, rgba(123,47,255,0.12) 100%);
-    border: 1px solid rgba(0,212,255,0.22);
-    padding: 1.4rem 1.3rem;
-    text-align: center;
-    backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px);
-    /* Morphing Animation injected here */
-    animation: waterDropMorph 6s infinite alternate ease-in-out, slideUpFade 0.6s cubic-bezier(0.16,1,0.3,1) both !important;
-    transition: transform 0.25s, box-shadow 0.25s;
-    min-height: 120px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-}
-.metric-card:hover {
-    transform: translateY(-4px);
-    border-color: rgba(0,212,255,0.5);
-}
-.metric-value {
-    font-family: 'Orbitron', monospace !important;
-    font-size: 1.9rem;
-    font-weight: 800;
-    color: var(--accent-blue) !important;
-}
-.metric-label {
-    font-size: 0.82rem;
-    color: var(--text-muted) !important;
-    letter-spacing: 1.2px;
-    text-transform: uppercase;
-    margin-top: 0.25rem;
-}
-.metric-delta {
-    font-size: 0.82rem;
-    color: var(--accent-green) !important;
-    margin-top: 0.15rem;
-}
-
-/* Standard Glass Card styling with morph */
 .glass-card {
     background: var(--glass-bg);
     backdrop-filter: var(--glass-blur);
     -webkit-backdrop-filter: var(--glass-blur);
     border: 1px solid var(--glass-border);
+    border-radius: var(--radius);
     padding: 1.4rem 1.6rem;
     margin-bottom: 1.2rem;
-    animation: waterDropMorph 8s infinite alternate ease-in-out, slideUpFade 0.55s cubic-bezier(0.16,1,0.3,1) both;
+    animation: slideUpFade 0.55s cubic-bezier(0.16,1,0.3,1) both;
 }
 .glass-card:hover {
     border-color: rgba(0,212,255,0.35);
+    box-shadow: 0 4px 32px rgba(0,212,255,0.12);
+    transition: border-color 0.3s, box-shadow 0.3s;
 }
 
+/* ── Neon heading ── */
+.neon-title {
+    font-family: 'Orbitron', monospace !important;
+    font-size: 2.6rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--accent-blue) 0%, var(--accent-violet) 60%, var(--accent-rose) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: none;
+    letter-spacing: 2px;
+    line-height: 1.15;
+}
+.neon-sub {
+    font-family: 'Rajdhani', sans-serif !important;
+    font-size: 1.05rem;
+    color: var(--text-muted) !important;
+    letter-spacing: 1px;
+    margin-top: 0.3rem;
+}
 .section-title {
     font-family: 'Orbitron', monospace !important;
     font-size: 1.15rem;
@@ -256,7 +156,66 @@ html, body, [class*="css"] {
     margin-bottom: 0.9rem;
 }
 
-/* ── Dropdown / Expander Checkbox Lists ── */
+/* ── KPI Metric Cards ── */
+.metric-card {
+    background: linear-gradient(135deg, rgba(0,212,255,0.08) 0%, rgba(123,47,255,0.08) 100%);
+    border: 1px solid rgba(0,212,255,0.22);
+    border-radius: var(--radius);
+    padding: 1.1rem 1.3rem;
+    text-align: center;
+    animation: slideUpFade 0.5s cubic-bezier(0.16,1,0.3,1) both;
+    transition: transform 0.25s, box-shadow 0.25s;
+}
+.metric-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 32px rgba(0,212,255,0.18);
+}
+.metric-value {
+    font-family: 'Orbitron', monospace !important;
+    font-size: 1.9rem;
+    font-weight: 800;
+    color: var(--accent-blue) !important;
+}
+.metric-label {
+    font-size: 0.78rem;
+    color: var(--text-muted) !important;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    margin-top: 0.25rem;
+}
+.metric-delta {
+    font-size: 0.82rem;
+    color: var(--accent-green) !important;
+    margin-top: 0.15rem;
+}
+
+/* ── Tab Bar ── */
+.stTabs [data-baseweb="tab-list"] {
+    background: rgba(255,255,255,0.04) !important;
+    border-radius: var(--radius-sm) !important;
+    border: 1px solid var(--glass-border) !important;
+    padding: 4px !important;
+    gap: 4px !important;
+}
+.stTabs [data-baseweb="tab"] {
+    font-family: 'Orbitron', monospace !important;
+    font-size: 0.7rem !important;
+    font-weight: 600 !important;
+    letter-spacing: 1px !important;
+    color: var(--text-muted) !important;
+    background: transparent !important;
+    border-radius: var(--radius-sm) !important;
+    padding: 0.55rem 1rem !important;
+    border: none !important;
+    transition: all 0.3s ease !important;
+}
+.stTabs [aria-selected="true"] {
+    background: linear-gradient(135deg, rgba(0,212,255,0.20), rgba(123,47,255,0.20)) !important;
+    color: var(--accent-blue) !important;
+    box-shadow: 0 0 18px rgba(0,212,255,0.25) !important;
+}
+
+/* ── Dropdown / Expander Checkbox Lists (Glass Animation) ── */
 [data-testid="stExpander"] {
     background: rgba(255, 255, 255, 0.03) !important;
     border: 1px solid var(--glass-border) !important;
@@ -264,6 +223,62 @@ html, body, [class*="css"] {
     backdrop-filter: var(--glass-blur) !important;
     -webkit-backdrop-filter: var(--glass-blur) !important;
     margin-bottom: 1rem !important;
+    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
+}
+[data-testid="stExpander"]:hover {
+    background: rgba(255, 255, 255, 0.08) !important;
+    border-color: rgba(0, 212, 255, 0.4) !important;
+    box-shadow: 0 4px 20px rgba(0, 212, 255, 0.15) !important;
+}
+[data-testid="stExpander"] summary {
+    color: var(--text-muted) !important;
+    font-family: 'Rajdhani', sans-serif !important;
+    font-weight: 600 !important;
+    font-size: 0.85rem !important;
+    letter-spacing: 1px !important;
+    text-transform: uppercase !important;
+    padding: 0.8rem 1rem !important;
+}
+[data-testid="stExpander"] summary:hover {
+    color: var(--accent-blue) !important;
+}
+[data-testid="stExpanderDetails"] {
+    animation: slideDownFade 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+    padding: 0.5rem 1rem 1rem 1rem !important;
+    transform-origin: top;
+}
+@keyframes slideDownFade {
+    from { opacity: 0; transform: scaleY(0.95) translateY(-10px); }
+    to { opacity: 1; transform: scaleY(1) translateY(0); }
+}
+
+/* ── Sliders & Selectboxes ── */
+.stSlider > div > div > div { background: var(--accent-violet) !important; }
+.stSelectbox > div {
+    background: rgba(255,255,255,0.06) !important;
+    border: 1px solid var(--glass-border) !important;
+    border-radius: var(--radius-sm) !important;
+    color: var(--text-primary) !important;
+}
+.stSlider label, .stSelectbox label, 
+.stRadio label, .stCheckbox label {
+    color: var(--text-muted) !important;
+    font-size: 0.82rem !important;
+    letter-spacing: 0.8px !important;
+    text-transform: uppercase !important;
+}
+
+/* Checkbox Hover Animations */
+[data-testid="stCheckbox"] {
+    background: rgba(255,255,255,0.02);
+    padding: 0.4rem 0.8rem;
+    border-radius: 8px;
+    margin-bottom: 0.2rem;
+    transition: background 0.3s ease, transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+[data-testid="stCheckbox"]:hover {
+    background: rgba(0, 212, 255, 0.1);
+    transform: translateX(6px);
 }
 
 /* ── DataFrames ── */
@@ -274,7 +289,7 @@ html, body, [class*="css"] {
     backdrop-filter: var(--glass-blur) !important;
 }
 
-/* ── General Buttons ── */
+/* ── Buttons ── */
 .stButton > button, .stDownloadButton > button {
     background: linear-gradient(135deg, var(--accent-blue), var(--accent-violet)) !important;
     color: #fff !important;
@@ -287,6 +302,10 @@ html, body, [class*="css"] {
     padding: 0.6rem 1.4rem !important;
     transition: all 0.3s ease !important;
     cursor: pointer !important;
+}
+.stButton > button:hover, .stDownloadButton > button:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 24px rgba(0,212,255,0.35) !important;
 }
 
 /* ── Settings Labels & Dividers ── */
@@ -302,12 +321,13 @@ html, body, [class*="css"] {
     border-bottom: 1px solid rgba(123,47,255,0.3);
 }
 
-/* ── Plotly transparent backgrounds ── */
+/* ── Plotly chart backgrounds → transparent ── */
 .js-plotly-plot .plotly .bg { fill: transparent !important; }
 </style>
 """
 
 st.markdown(GLASS_CSS, unsafe_allow_html=True)
+
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -328,6 +348,7 @@ PLOTLY_TEMPLATE = dict(
 )
 
 def apply_glass(fig: go.Figure, title: str = "", height: int = 450) -> go.Figure:
+    """Apply the glass-OS Plotly theme to any figure."""
     fig.update_layout(
         **PLOTLY_TEMPLATE,
         title=dict(text=title, font=dict(family="Orbitron, monospace", size=14, color="#00d4ff")),
@@ -337,14 +358,16 @@ def apply_glass(fig: go.Figure, title: str = "", height: int = 450) -> go.Figure
     return fig
 
 # ─────────────────────────────────────────────────────────────────────────────
-# 3.  DATA LOADING & PRE-PROCESSING
+# 3.  DATA LOADING & PRE-PROCESSING  (FA-1 foundation)
 # ─────────────────────────────────────────────────────────────────────────────
 DATA_PATH = "atm_cash_management_dataset.csv"
 
 @st.cache_data(show_spinner=False)
 def load_and_preprocess(path: str) -> pd.DataFrame:
+    """FA-1 automated preprocessing pipeline."""
     df = pd.read_csv(path)
 
+    # Date parsing
     df["Date"] = pd.to_datetime(df["Date"], errors="coerce")
     df["Month"]      = df["Date"].dt.month
     df["Day"]        = df["Date"].dt.day
@@ -352,18 +375,21 @@ def load_and_preprocess(path: str) -> pd.DataFrame:
     df["Year"]       = df["Date"].dt.year
     df["DayOfYear"]  = df["Date"].dt.dayofyear
 
+    # Missing value handling
     numeric_cols = df.select_dtypes(include=np.number).columns
     df[numeric_cols] = df[numeric_cols].fillna(df[numeric_cols].median())
     cat_cols = df.select_dtypes(include="object").columns.difference(["ATM_ID", "Date"])
     for col in cat_cols:
         df[col] = df[col].fillna(df[col].mode()[0])
 
+    # Label-encode categoricals
     le = LabelEncoder()
     df["Location_Type_Enc"] = le.fit_transform(df["Location_Type"].astype(str))
     df["Weather_Enc"]       = le.fit_transform(df["Weather_Condition"].astype(str))
     df["TimeOfDay_Enc"]     = le.fit_transform(df["Time_of_Day"].astype(str))
     df["DayOfWeek_Enc"]     = le.fit_transform(df["Day_of_Week"].astype(str))
 
+    # Derived KPIs
     df["Net_Flow"]          = df["Total_Deposits"] - df["Total_Withdrawals"]
     df["Cash_Utilisation"]  = (
         df["Total_Withdrawals"] /
@@ -374,14 +400,16 @@ def load_and_preprocess(path: str) -> pd.DataFrame:
 
 @st.cache_data(show_spinner=False)
 def get_cluster_features(df: pd.DataFrame, feature_cols: list) -> np.ndarray:
+    """Scale selected features for clustering."""
     scaler = StandardScaler()
     return scaler.fit_transform(df[feature_cols].fillna(0))
 
 # ─────────────────────────────────────────────────────────────────────────────
-# 4.  ML FUNCTIONS 
+# 4.  ML FUNCTIONS (Fixed for robust mathematical limits)
 # ─────────────────────────────────────────────────────────────────────────────
 @st.cache_data(show_spinner=False)
 def run_kmeans(X: np.ndarray, k: int, random_state: int) -> tuple:
+    """Run K-Means and return labels + inertia values for elbow."""
     inertias, sil_scores = [], []
     k_range = range(2, min(12, len(X)))
     for ki in k_range:
@@ -395,18 +423,22 @@ def run_kmeans(X: np.ndarray, k: int, random_state: int) -> tuple:
     return labels, inertias, sil_scores, list(k_range)
 
 def run_isolation_forest(df: pd.DataFrame, contamination: float, feature_cols: list) -> pd.DataFrame:
+    """Detect anomalies with Isolation Forest."""
     X = df[feature_cols].fillna(0).values
     iso = IsolationForest(contamination=contamination, random_state=42, n_estimators=200)
+    
+    # Fit the model and extract the decision scores properly
     iso.fit(X)
     
     df_out = df.copy()
-    df_out["Anomaly_Score"]  = iso.decision_function(X) * -1
-    df_out["Is_Anomaly"]     = iso.predict(X)
+    df_out["Anomaly_Score"]  = iso.decision_function(X) * -1   # higher = more anomalous
+    df_out["Is_Anomaly"]     = iso.predict(X)                  # -1 = anomaly, 1 = normal
     df_out["Anomaly_Label"]  = df_out["Is_Anomaly"].map({-1: "⚠ Anomaly", 1: "✔ Normal"})
     return df_out
 
 @st.cache_data(show_spinner=False)
 def compute_forecast(df: pd.DataFrame, days_ahead: int = 7) -> tuple:
+    """Simple exponential-smoothing forecast."""
     if df.empty:
         return pd.DataFrame(), pd.DataFrame()
         
@@ -418,8 +450,10 @@ def compute_forecast(df: pd.DataFrame, days_ahead: int = 7) -> tuple:
     )
     ts.columns = ["Date", "Avg_Cash_Demand"]
 
-    if len(ts) == 0: return pd.DataFrame(), pd.DataFrame()
+    if len(ts) == 0:
+        return pd.DataFrame(), pd.DataFrame()
 
+    # Exponential smoothing
     alpha = 0.3
     smoothed = [ts["Avg_Cash_Demand"].iloc[0]]
     for val in ts["Avg_Cash_Demand"].iloc[1:]:
@@ -429,6 +463,7 @@ def compute_forecast(df: pd.DataFrame, days_ahead: int = 7) -> tuple:
     last_val   = ts["Smoothed"].iloc[-1]
     last_date  = ts["Date"].iloc[-1]
     
+    # Safely compute the slope without crashing on tiny datasets
     if len(ts) > 1:
         slope = ts["Smoothed"].diff().tail(30).mean()
         if pd.isna(slope): slope = 0
@@ -458,10 +493,12 @@ if not data_loaded:
     )
     st.stop()
 
+# Gather dynamic boundaries
 all_locations = sorted(df["Location_Type"].unique())
 all_weather = sorted(df["Weather_Condition"].unique())
 date_min, date_max = df["Date"].min().date(), df["Date"].max().date()
 
+# Initialize Session State Variables to replace sidebar
 if "loc_filter" not in st.session_state: st.session_state.loc_filter = all_locations
 if "wx_filter" not in st.session_state: st.session_state.wx_filter = all_weather
 if "date_range" not in st.session_state: st.session_state.date_range = (date_min, date_max)
@@ -492,7 +529,9 @@ def settings_dialog():
         unsafe_allow_html=True,
     )
 
+    # ── Global Filters
     st.markdown('<div class="sidebar-section-header">Global Filters</div>', unsafe_allow_html=True)
+    
     with st.expander("📍 Location Type"):
         temp_locs = []
         for loc in all_locations:
@@ -509,6 +548,7 @@ def settings_dialog():
         
     st.date_input("Date Range", min_value=date_min, max_value=date_max, key="date_range")
 
+    # ── Clustering Parameters
     st.markdown('<div class="sidebar-section-header">Clustering (K-Means)</div>', unsafe_allow_html=True)
     st.slider("Number of Clusters (K)", 2, 10, key="k_val")
     st.slider("Random State", 0, 100, key="km_rs")
@@ -522,6 +562,7 @@ def settings_dialog():
                 temp_cl.append(feat)
         st.session_state.cl_feat = temp_cl
 
+    # ── Anomaly Detection Parameters
     st.markdown('<div class="sidebar-section-header">Anomaly Detection</div>', unsafe_allow_html=True)
     st.slider("Contamination Rate", 0.01, 0.30, step=0.01, key="iso_cont")
     
@@ -535,6 +576,7 @@ def settings_dialog():
         
     st.checkbox("Holiday / Event Days Only", key="hol_only")
 
+    # ── Forecasting Parameters
     st.markdown('<div class="sidebar-section-header">Forecasting</div>', unsafe_allow_html=True)
     st.slider("Days to Forecast", 3, 30, key="fc_days")
 
@@ -542,6 +584,7 @@ def settings_dialog():
     if st.button("Apply Parameters", use_container_width=True):
         st.rerun()
 
+# Map session variables back to local logic
 sel_locations = st.session_state.loc_filter
 sel_weather = st.session_state.wx_filter
 date_range = st.session_state.date_range
@@ -574,18 +617,24 @@ if dff.empty:
         settings_dialog()
     st.stop()
 
-
 # ─────────────────────────────────────────────────────────────────────────────
-# 8.  HEADER & LAYOUT INJECTION
+# 8.  HEADER & CONTROL PANEL LAUNCHER
 # ─────────────────────────────────────────────────────────────────────────────
+st.markdown(
+    '<div class="glass-card" style="margin-bottom:0.8rem;">'
+    '<div class="neon-title">🏧 ATM Intelligence · Glass OS</div>'
+    '<div class="neon-sub">'
+    'Demand Forecasting & Behavioural Analytics — FA-2'
+    '</div></div>',
+    unsafe_allow_html=True,
+)
 
-# Inject Fixed Header Title (Top Left)
-st.markdown('<div class="top-title-img">ATM intelligence</div>', unsafe_allow_html=True)
-
-# Inject Fixed Setting Button (Top Right)
-if st.button("Setting"):
-    settings_dialog()
-
+col_settings, col_empty = st.columns([1, 4])
+with col_settings:
+    if st.button("⚙️ System Configuration Panel", use_container_width=True):
+        settings_dialog()
+        
+st.markdown("<br>", unsafe_allow_html=True)
 
 # ── KPI Row ─────────────────────────────────────────────────────────────────
 kpi1, kpi2, kpi3, kpi4, kpi5 = st.columns(5)
@@ -616,15 +665,14 @@ kpi_card(kpi5, util_pct, "Cash Utilisation",    "mean across ATMs")
 st.markdown("<br>", unsafe_allow_html=True)
 
 # ─────────────────────────────────────────────────────────────────────────────
-# 9.  TABS (Visually mapped to the Top Center Menu Bar)
+# 9.  TABS
 # ─────────────────────────────────────────────────────────────────────────────
-# Text spelling mapped strictly to the provided image visual
 tab_eda, tab_cluster, tab_anomaly, tab_forecast, tab_export = st.tabs([
-    "EDA patterns",
-    "Clusttring",
+    "EDA · Patterns",
+    "Clustering",
     "Anomaly Detection",
     "Forecasting",
-    "Export"
+    "Export",
 ])
 
 # ═════════════════════════════════════════════════════════════════════════════
@@ -981,6 +1029,7 @@ with tab_forecast:
             marker=dict(size=7, color="#ff2d78"),
         ))
 
+        # Safe Confidence band calculation
         x_ci = fc_df["Date"].tolist() + fc_df["Date"].tolist()[::-1]
         y_ci = (fc_df["Forecast"] * 1.10).tolist() + (fc_df["Forecast"] * 0.90).tolist()[::-1]
         
@@ -1068,7 +1117,7 @@ with tab_export:
     csv_bytes = buf.getvalue().encode("utf-8")
 
     st.download_button(
-        label="💾  Download Intelligence Report (CSV)",
+        label="  Download Intelligence Report (CSV)",
         data=csv_bytes,
         file_name="atm_intelligence_report.csv",
         mime="text/csv",
@@ -1086,4 +1135,4 @@ st.markdown(
     '</span>'
     '</div>',
     unsafe_allow_html=True,
-)
+).   
