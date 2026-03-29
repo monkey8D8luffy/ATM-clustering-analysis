@@ -30,7 +30,7 @@ st.set_page_config(
     page_title="ATM Intelligence · Glass OS",
     page_icon="🏧",
     layout="wide",
-    initial_sidebar_state="expanded",
+    initial_sidebar_state="collapsed", # Sidebar removed
 )
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -71,22 +71,35 @@ html, body, [class*="css"] {
     min-height: 100vh;
 }
 
-/* ── Hide Streamlit chrome ── */
+/* ── Hide Streamlit chrome & Sidebar completely ── */
 #MainMenu, footer, header,
 .stDeployButton, [data-testid="stToolbar"] { display: none !important; }
-
-/* ── Sidebar — Glass Panel ── */
-[data-testid="stSidebar"] {
-    background: rgba(8, 12, 36, 0.75) !important;
-    backdrop-filter: var(--glass-blur) !important;
-    border-right: 1px solid var(--glass-border) !important;
-}
-[data-testid="stSidebar"] > div:first-child { padding-top: 1.5rem; }
+[data-testid="collapsedControl"] { display: none !important; }
+[data-testid="stSidebar"] { display: none !important; }
 
 /* ── Main content wrapper ── */
 .block-container {
     padding: 1.5rem 2rem 3rem 2rem !important;
     max-width: 100% !important;
+}
+
+/* ── Dialog / Pop-up Glassmorphism Animation ── */
+[data-testid="stDialog"] > div {
+    background: rgba(8, 12, 36, 0.65) !important;
+    backdrop-filter: blur(25px) !important;
+    -webkit-backdrop-filter: blur(25px) !important;
+    border: 1px solid rgba(255,255,255,0.15) !important;
+    border-radius: 20px !important;
+    box-shadow: 0 8px 32px rgba(0, 212, 255, 0.25) !important;
+    animation: glassMorph 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+}
+[data-testid="stModal"] {
+    background: rgba(3, 5, 15, 0.7) !important; /* backdrop dimming */
+    backdrop-filter: blur(8px) !important;
+}
+@keyframes glassMorph {
+    0% { opacity: 0; transform: scale(0.92) translateY(30px); }
+    100% { opacity: 1; transform: scale(1) translateY(0); }
 }
 
 /* ── Animated slide-in for main sections ── */
@@ -245,7 +258,7 @@ html, body, [class*="css"] {
     box-shadow: 0 6px 24px rgba(0,212,255,0.35) !important;
 }
 
-/* ── Sidebar Labels & Dividers ── */
+/* ── Settings Labels & Dividers ── */
 .sidebar-section-header {
     font-family: 'Orbitron', monospace !important;
     font-size: 0.68rem;
@@ -360,7 +373,7 @@ def run_kmeans(X: np.ndarray, k: int, random_state: int) -> tuple:
     return labels, inertias, sil_scores, list(k_range)
 
 def run_isolation_forest(df: pd.DataFrame, contamination: float, feature_cols: list) -> pd.DataFrame:
-    """Detect anomalies with Isolation Forest. (FIXED: replaced fit_transform with decision_function)"""
+    """Detect anomalies with Isolation Forest."""
     X = df[feature_cols].fillna(0).values
     iso = IsolationForest(contamination=contamination, random_state=42, n_estimators=200)
     
@@ -375,7 +388,7 @@ def run_isolation_forest(df: pd.DataFrame, contamination: float, feature_cols: l
 
 @st.cache_data(show_spinner=False)
 def compute_forecast(df: pd.DataFrame, days_ahead: int = 7) -> tuple:
-    """Simple exponential-smoothing forecast. (FIXED: Handles short date ranges securely)"""
+    """Simple exponential-smoothing forecast."""
     if df.empty:
         return pd.DataFrame(), pd.DataFrame()
         
@@ -414,7 +427,7 @@ def compute_forecast(df: pd.DataFrame, days_ahead: int = 7) -> tuple:
     return ts, forecast_df
 
 # ─────────────────────────────────────────────────────────────────────────────
-# 5.  LOAD DATA
+# 5.  LOAD DATA & INITIALISE STATE
 # ─────────────────────────────────────────────────────────────────────────────
 with st.spinner("🏧  Initialising Glass OS · Loading ATM data..."):
     try:
@@ -430,83 +443,89 @@ if not data_loaded:
     )
     st.stop()
 
+# Gather dynamic boundaries
+all_locations = sorted(df["Location_Type"].unique())
+all_weather = sorted(df["Weather_Condition"].unique())
+date_min, date_max = df["Date"].min().date(), df["Date"].max().date()
+
+# Initialize Session State Variables to replace sidebar
+if "loc_filter" not in st.session_state: st.session_state.loc_filter = all_locations
+if "wx_filter" not in st.session_state: st.session_state.wx_filter = all_weather
+if "date_range" not in st.session_state: st.session_state.date_range = (date_min, date_max)
+if "k_val" not in st.session_state: st.session_state.k_val = 4
+if "km_rs" not in st.session_state: st.session_state.km_rs = 42
+if "cl_feat" not in st.session_state: 
+    st.session_state.cl_feat = ["Total_Withdrawals", "Total_Deposits", "Nearby_Competitor_ATMs", "Cash_Utilisation"]
+if "iso_cont" not in st.session_state: st.session_state.iso_cont = 0.05
+if "ano_feat" not in st.session_state: 
+    st.session_state.ano_feat = ["Total_Withdrawals", "Cash_Demand_Next_Day"]
+if "hol_only" not in st.session_state: st.session_state.hol_only = False
+if "fc_days" not in st.session_state: st.session_state.fc_days = 7
+
 # ─────────────────────────────────────────────────────────────────────────────
-# 6.  SIDEBAR — Glass Parameter Panel
+# 6.  SETTINGS DIALOG (POP-UP GLASS OS)
 # ─────────────────────────────────────────────────────────────────────────────
-with st.sidebar:
+@st.dialog("⚙️ ATM OS Settings")
+def settings_dialog():
     st.markdown(
-        '<div style="text-align:center; padding: 0.8rem 0 1rem;">'
+        '<div style="text-align:center; padding: 0 0 1rem;">'
         '<span style="font-family:Orbitron,monospace; font-size:1.1rem; '
         'background:linear-gradient(135deg,#00d4ff,#7b2fff); '
         '-webkit-background-clip:text; -webkit-text-fill-color:transparent; '
-        'font-weight:800; letter-spacing:2px;">🏧 ATM OS</span><br>'
+        'font-weight:800; letter-spacing:2px;">INTELLIGENCE CONTROL PANEL</span><br>'
         '<span style="font-size:0.68rem; color:rgba(200,210,255,0.45); '
-        'letter-spacing:1.5px;">INTELLIGENCE CONTROL PANEL</span>'
+        'letter-spacing:1.5px;">SYSTEM PREFERENCES</span>'
         '</div>',
         unsafe_allow_html=True,
     )
 
-    # ── Global Filters ──────────────────────────────────────────────────────
+    # ── Global Filters
     st.markdown('<div class="sidebar-section-header">Global Filters</div>', unsafe_allow_html=True)
+    st.multiselect("Location Type", all_locations, key="loc_filter")
+    st.multiselect("Weather Condition", all_weather, key="wx_filter")
+    st.date_input("Date Range", min_value=date_min, max_value=date_max, key="date_range")
 
-    all_locations = sorted(df["Location_Type"].unique())
-    sel_locations = st.multiselect(
-        "Location Type", all_locations, default=all_locations,
-        key="loc_filter",
-    )
-
-    all_weather = sorted(df["Weather_Condition"].unique())
-    sel_weather = st.multiselect(
-        "Weather Condition", all_weather, default=all_weather,
-        key="wx_filter",
-    )
-
-    date_min, date_max = df["Date"].min().date(), df["Date"].max().date()
-    date_range = st.date_input(
-        "Date Range", value=(date_min, date_max),
-        min_value=date_min, max_value=date_max, key="date_range",
-    )
-
-    # ── Clustering Parameters ───────────────────────────────────────────────
+    # ── Clustering Parameters
     st.markdown('<div class="sidebar-section-header">Clustering (K-Means)</div>', unsafe_allow_html=True)
-
-    k_value = st.slider("Number of Clusters (K)", 2, 10, 4, key="k_val")
-    km_random_state = st.slider("Random State", 0, 100, 42, key="km_rs")
-    cluster_features = st.multiselect(
+    st.slider("Number of Clusters (K)", 2, 10, key="k_val")
+    st.slider("Random State", 0, 100, key="km_rs")
+    st.multiselect(
         "Cluster Features",
         ["Total_Withdrawals", "Total_Deposits", "Nearby_Competitor_ATMs",
          "Cash_Utilisation", "Net_Flow", "Previous_Day_Cash_Level"],
-        default=["Total_Withdrawals", "Total_Deposits",
-                 "Nearby_Competitor_ATMs", "Cash_Utilisation"],
-        key="cl_feat",
+        key="cl_feat"
     )
 
-    # ── Anomaly Detection Parameters ────────────────────────────────────────
+    # ── Anomaly Detection Parameters
     st.markdown('<div class="sidebar-section-header">Anomaly Detection</div>', unsafe_allow_html=True)
-
-    iso_contamination = st.slider(
-        "Contamination Rate", 0.01, 0.30, 0.05, step=0.01, key="iso_cont",
-    )
-    anomaly_features = st.multiselect(
+    st.slider("Contamination Rate", 0.01, 0.30, step=0.01, key="iso_cont")
+    st.multiselect(
         "Anomaly Features",
         ["Total_Withdrawals", "Cash_Demand_Next_Day",
          "Previous_Day_Cash_Level", "Net_Flow"],
-        default=["Total_Withdrawals", "Cash_Demand_Next_Day"],
-        key="ano_feat",
+        key="ano_feat"
     )
-    holiday_only = st.checkbox("Holiday / Event Days Only", value=False, key="hol_only")
+    st.checkbox("Holiday / Event Days Only", key="hol_only")
 
-    # ── Forecasting Parameters ──────────────────────────────────────────────
+    # ── Forecasting Parameters
     st.markdown('<div class="sidebar-section-header">Forecasting</div>', unsafe_allow_html=True)
-    forecast_days = st.slider("Days to Forecast", 3, 30, 7, key="fc_days")
+    st.slider("Days to Forecast", 3, 30, key="fc_days")
 
-    st.markdown("---")
-    st.markdown(
-        '<div style="font-size:0.62rem; color:rgba(200,210,255,0.3); '
-        'text-align:center; letter-spacing:1px;">'
-        'Saurav Kamble · IBCP AI First Year<br>Glass OS FA-2</div>',
-        unsafe_allow_html=True,
-    )
+    st.markdown("<br>", unsafe_allow_html=True)
+    if st.button("Apply Parameters", use_container_width=True):
+        st.rerun()
+
+# Map session variables back to local logic
+sel_locations = st.session_state.loc_filter
+sel_weather = st.session_state.wx_filter
+date_range = st.session_state.date_range
+k_value = st.session_state.k_val
+km_random_state = st.session_state.km_rs
+cluster_features = st.session_state.cl_feat
+iso_contamination = st.session_state.iso_cont
+anomaly_features = st.session_state.ano_feat
+holiday_only = st.session_state.hol_only
+forecast_days = st.session_state.fc_days
 
 # ─────────────────────────────────────────────────────────────────────────────
 # 7.  APPLY GLOBAL FILTERS
@@ -525,19 +544,28 @@ dff = df[mask].copy()
 
 if dff.empty:
     st.warning("⚠ No data matches your current filters. Please widen the selection to view data.")
+    if st.button("⚙️ Open Settings"):
+        settings_dialog()
     st.stop()
 
 # ─────────────────────────────────────────────────────────────────────────────
-# 8.  HEADER
+# 8.  HEADER & CONTROL PANEL LAUNCHER
 # ─────────────────────────────────────────────────────────────────────────────
 st.markdown(
-    '<div class="glass-card" style="margin-bottom:1.6rem;">'
+    '<div class="glass-card" style="margin-bottom:0.8rem;">'
     '<div class="neon-title">🏧 ATM Intelligence · Glass OS</div>'
     '<div class="neon-sub">'
     'Demand Forecasting & Behavioural Analytics — FA-2'
     '</div></div>',
     unsafe_allow_html=True,
 )
+
+col_settings, col_empty = st.columns([1, 4])
+with col_settings:
+    if st.button("⚙️ System Configuration Panel", use_container_width=True):
+        settings_dialog()
+        
+st.markdown("<br>", unsafe_allow_html=True)
 
 # ── KPI Row ─────────────────────────────────────────────────────────────────
 kpi1, kpi2, kpi3, kpi4, kpi5 = st.columns(5)
@@ -716,7 +744,7 @@ with tab_cluster:
     st.markdown('<div class="section-title">K-Means ATM Clustering</div>', unsafe_allow_html=True)
 
     if len(cluster_features) < 2:
-        st.warning("⚠ Please select at least 2 cluster features in the sidebar.")
+        st.warning("⚠ Please select at least 2 cluster features in the settings panel.")
     else:
         X_cl = get_cluster_features(dff, cluster_features)
         labels, inertias, sil_scores, k_range = run_kmeans(X_cl, k_value, km_random_state)
@@ -817,7 +845,7 @@ with tab_anomaly:
     st.markdown('<div class="section-title">Isolation Forest · Anomaly Detection</div>', unsafe_allow_html=True)
 
     if len(anomaly_features) < 1:
-        st.warning("⚠ Select at least 1 anomaly feature in the sidebar.")
+        st.warning("⚠ Select at least 1 anomaly feature in the settings panel.")
     else:
         df_ano_base = dff.copy()
         if holiday_only:
@@ -825,7 +853,7 @@ with tab_anomaly:
                                        (df_ano_base["Special_Event_Flag"] == 1)]
 
         if df_ano_base.empty:
-            st.warning("⚠ No holiday/event rows in the current filter. Uncheck the option in the sidebar.")
+            st.warning("⚠ No holiday/event rows in the current filter. Uncheck the option in the settings panel.")
         else:
             df_ano = run_isolation_forest(df_ano_base, iso_contamination, anomaly_features)
 
