@@ -404,7 +404,7 @@ def get_cluster_features(df: pd.DataFrame, feature_cols: list) -> np.ndarray:
     return scaler.fit_transform(df[feature_cols].fillna(0))
 
 # ─────────────────────────────────────────────────────────────────────────────
-# 4.  ML FUNCTIONS (Fixed for robust mathematical limits)
+# 4.  ML FUNCTIONS (Aggressively Cached for Fast Reruns)
 # ─────────────────────────────────────────────────────────────────────────────
 @st.cache_data(show_spinner=False)
 def run_kmeans(X: np.ndarray, k: int, random_state: int) -> tuple:
@@ -421,6 +421,8 @@ def run_kmeans(X: np.ndarray, k: int, random_state: int) -> tuple:
     labels = final_km.fit_predict(X)
     return labels, inertias, sil_scores, list(k_range)
 
+# 👇 FIX: ADDED @st.cache_data TO PREVENT MASSIVE LAG ON TAB SWITCHING
+@st.cache_data(show_spinner=False)
 def run_isolation_forest(df: pd.DataFrame, contamination: float, feature_cols: list) -> pd.DataFrame:
     """Detect anomalies with Isolation Forest."""
     X = df[feature_cols].fillna(0).values
