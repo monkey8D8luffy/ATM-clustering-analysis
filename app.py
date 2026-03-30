@@ -34,7 +34,7 @@ st.set_page_config(
 )
 
 # ─────────────────────────────────────────────────────────────────────────────
-# 1.  CUSTOM CSS  — Glass OS / Glassmorphism Theme
+# 1.  CUSTOM CSS  — Apple Clear Glass & Liquid Morph Theme
 # ─────────────────────────────────────────────────────────────────────────────
 GLASS_CSS = """
 <style>
@@ -49,11 +49,11 @@ GLASS_CSS = """
     --accent-violet: #7b2fff;
     --accent-rose:   #ff2d78;
     --accent-green:  #00ffb2;
-    --glass-bg:      rgba(255, 255, 255, 0.06);
+    --glass-bg:      rgba(255, 255, 255, 0.05);
     --glass-border:  rgba(255, 255, 255, 0.12);
-    --glass-blur:    blur(14px);
+    --glass-blur:    blur(20px);
     --text-primary:  #e8eeff;
-    --text-muted:    rgba(200, 210, 255, 0.55);
+    --text-muted:    rgba(200, 210, 255, 0.65);
     --radius:        16px;
     --radius-sm:     10px;
 }
@@ -116,11 +116,12 @@ html, body, [class*="css"] {
     border-radius: var(--radius);
     padding: 1.4rem 1.6rem;
     margin-bottom: 1.2rem;
+    box-shadow: inset 0 0 10px rgba(255,255,255,0.02), 0 8px 32px rgba(0,0,0,0.2);
     animation: slideUpFade 0.55s cubic-bezier(0.16,1,0.3,1) both;
 }
 .glass-card:hover {
     border-color: rgba(0,212,255,0.35);
-    box-shadow: 0 4px 32px rgba(0,212,255,0.12);
+    box-shadow: 0 4px 32px rgba(0,212,255,0.12), inset 0 0 15px rgba(255,255,255,0.05);
     transition: border-color 0.3s, box-shadow 0.3s;
 }
 
@@ -147,35 +148,49 @@ html, body, [class*="css"] {
     margin-bottom: 0.9rem;
 }
 
-/* ── Top Navigation Bar (Radio Button Override) ── */
+/* ── Top Navigation Bar (Apple Clear Glass + Liquid Morph Override) ── */
+@keyframes liquidGradient {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
 div.row-widget.stRadio > div {
-    background: var(--glass-bg) !important;
-    backdrop-filter: var(--glass-blur) !important;
-    -webkit-backdrop-filter: var(--glass-blur) !important;
-    border-radius: 30px !important;
-    border: 1px solid var(--glass-border) !important;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.02)) !important;
+    backdrop-filter: blur(25px) !important;
+    -webkit-backdrop-filter: blur(25px) !important;
+    border-radius: 40px !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    box-shadow: inset 0 0 20px rgba(255, 255, 255, 0.05), 0 8px 32px rgba(0, 0, 0, 0.3) !important;
     padding: 6px 12px !important;
     display: flex !important;
     justify-content: space-around !important;
     align-items: center !important;
     animation: glassMorph 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
 }
+
 div.row-widget.stRadio > div > label {
     background: transparent !important;
     padding: 0.5rem 1rem !important;
-    border-radius: 20px !important;
+    border-radius: 30px !important;
     cursor: pointer !important;
     transition: all 0.3s ease !important;
+    border: 1px solid transparent !important;
 }
+
 div.row-widget.stRadio > div > label:hover {
-    background: rgba(0,212,255,0.1) !important;
+    background: rgba(255,255,255,0.08) !important;
 }
-/* Focus/Selected state imitation */
+
+/* Active State: Liquid Glass Morph */
 div.row-widget.stRadio > div > label[data-checked="true"] {
-    background: linear-gradient(135deg, rgba(0,212,255,0.20), rgba(123,47,255,0.20)) !important;
-    box-shadow: 0 0 18px rgba(0,212,255,0.25) !important;
-    border: 1px solid rgba(0,212,255,0.4) !important;
+    background: linear-gradient(270deg, rgba(0,212,255,0.5), rgba(123,47,255,0.6), rgba(0,212,255,0.5)) !important;
+    background-size: 200% 200% !important;
+    animation: liquidGradient 3s ease infinite !important;
+    box-shadow: 0 0 20px rgba(0,212,255,0.4), inset 0 0 10px rgba(255,255,255,0.5) !important;
+    border: 1px solid rgba(255, 255, 255, 0.4) !important;
 }
+
 div.row-widget.stRadio p {
     font-family: 'Orbitron', monospace !important;
     font-size: 0.75rem !important;
@@ -183,30 +198,38 @@ div.row-widget.stRadio p {
     letter-spacing: 1px !important;
     color: var(--text-muted) !important;
     margin: 0 !important;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.5) !important;
 }
+
 div.row-widget.stRadio > div > label[data-checked="true"] p {
-    color: var(--accent-blue) !important;
+    color: #ffffff !important;
+    text-shadow: 0 0 8px rgba(255,255,255,0.8) !important;
 }
 
 /* ── KPI Metric Cards ── */
 .metric-card {
-    background: linear-gradient(135deg, rgba(0,212,255,0.08) 0%, rgba(123,47,255,0.08) 100%);
-    border: 1px solid rgba(0,212,255,0.22);
+    background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border: 1px solid rgba(255,255,255,0.1);
     border-radius: var(--radius);
     padding: 1.1rem 1.3rem;
     text-align: center;
+    box-shadow: inset 0 0 10px rgba(255,255,255,0.02), 0 8px 32px rgba(0,0,0,0.2);
     animation: slideUpFade 0.5s cubic-bezier(0.16,1,0.3,1) both;
     transition: transform 0.25s, box-shadow 0.25s;
 }
 .metric-card:hover {
     transform: translateY(-4px);
-    box-shadow: 0 8px 32px rgba(0,212,255,0.18);
+    box-shadow: 0 8px 32px rgba(0,212,255,0.18), inset 0 0 15px rgba(255,255,255,0.05);
+    border-color: rgba(0,212,255,0.3);
 }
 .metric-value {
     font-family: 'Orbitron', monospace !important;
     font-size: 1.9rem;
     font-weight: 800;
     color: var(--accent-blue) !important;
+    text-shadow: 0 0 10px rgba(0,212,255,0.3);
 }
 .metric-label {
     font-size: 0.78rem;
@@ -246,23 +269,28 @@ div.row-widget.stRadio > div > label[data-checked="true"] p {
     padding: 0.8rem 1rem !important;
 }
 
-/* ── Buttons ── */
+/* ── Buttons (Apple Glass Pill) ── */
 .stButton > button, .stDownloadButton > button {
-    background: linear-gradient(135deg, var(--accent-blue), var(--accent-violet)) !important;
+    background: linear-gradient(135deg, rgba(0,212,255,0.3), rgba(123,47,255,0.3)) !important;
+    backdrop-filter: blur(15px) !important;
+    -webkit-backdrop-filter: blur(15px) !important;
     color: #fff !important;
-    border: none !important;
-    border-radius: 30px !important; /* Updated to pill shape */
+    border: 1px solid rgba(255,255,255,0.2) !important;
+    border-radius: 40px !important; /* Pill shape */
     font-family: 'Orbitron', monospace !important;
     font-size: 0.75rem !important;
     font-weight: 600 !important;
     letter-spacing: 1px !important;
     padding: 0.6rem 1.4rem !important;
+    box-shadow: inset 0 0 10px rgba(255,255,255,0.1), 0 4px 15px rgba(0,0,0,0.2) !important;
     transition: all 0.3s ease !important;
     cursor: pointer !important;
 }
 .stButton > button:hover, .stDownloadButton > button:hover {
+    background: linear-gradient(135deg, rgba(0,212,255,0.5), rgba(123,47,255,0.5)) !important;
     transform: translateY(-2px) !important;
-    box-shadow: 0 6px 24px rgba(0,212,255,0.35) !important;
+    box-shadow: inset 0 0 15px rgba(255,255,255,0.2), 0 8px 25px rgba(0,212,255,0.4) !important;
+    border-color: rgba(255,255,255,0.4) !important;
 }
 
 /* ── Settings Labels & Dividers ── */
@@ -580,7 +608,7 @@ col_title, col_nav, col_set = st.columns([1.5, 4.5, 1])
 
 with col_title:
     st.markdown(
-        '<div class="glass-card" style="padding: 0.7rem 1rem; text-align: center; border-radius: 30px; margin-bottom: 0;">'
+        '<div class="glass-card" style="padding: 0.7rem 1rem; text-align: center; border-radius: 40px; margin-bottom: 0;">'
         '<span class="neon-title" style="font-size: 1.25rem; line-height: 1;">ATM Intelligence</span>'
         '</div>',
         unsafe_allow_html=True,
