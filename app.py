@@ -127,7 +127,6 @@ html, body, [class*="css"] {
 /* ── Neon heading ── */
 .neon-title {
     font-family: 'Orbitron', monospace !important;
-    font-size: 2.6rem;
     font-weight: 800;
     background: linear-gradient(135deg, var(--accent-blue) 0%, var(--accent-violet) 60%, var(--accent-rose) 100%);
     -webkit-background-clip: text;
@@ -135,14 +134,6 @@ html, body, [class*="css"] {
     background-clip: text;
     text-shadow: none;
     letter-spacing: 2px;
-    line-height: 1.15;
-}
-.neon-sub {
-    font-family: 'Rajdhani', sans-serif !important;
-    font-size: 1.05rem;
-    color: var(--text-muted) !important;
-    letter-spacing: 1px;
-    margin-top: 0.3rem;
 }
 .section-title {
     font-family: 'Orbitron', monospace !important;
@@ -154,6 +145,47 @@ html, body, [class*="css"] {
     border-left: 3px solid var(--accent-violet);
     padding-left: 0.7rem;
     margin-bottom: 0.9rem;
+}
+
+/* ── Top Navigation Bar (Radio Button Override) ── */
+div.row-widget.stRadio > div {
+    background: var(--glass-bg) !important;
+    backdrop-filter: var(--glass-blur) !important;
+    -webkit-backdrop-filter: var(--glass-blur) !important;
+    border-radius: 30px !important;
+    border: 1px solid var(--glass-border) !important;
+    padding: 6px 12px !important;
+    display: flex !important;
+    justify-content: space-around !important;
+    align-items: center !important;
+    animation: glassMorph 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+}
+div.row-widget.stRadio > div > label {
+    background: transparent !important;
+    padding: 0.5rem 1rem !important;
+    border-radius: 20px !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+}
+div.row-widget.stRadio > div > label:hover {
+    background: rgba(0,212,255,0.1) !important;
+}
+/* Focus/Selected state imitation */
+div.row-widget.stRadio > div > label[data-checked="true"] {
+    background: linear-gradient(135deg, rgba(0,212,255,0.20), rgba(123,47,255,0.20)) !important;
+    box-shadow: 0 0 18px rgba(0,212,255,0.25) !important;
+    border: 1px solid rgba(0,212,255,0.4) !important;
+}
+div.row-widget.stRadio p {
+    font-family: 'Orbitron', monospace !important;
+    font-size: 0.75rem !important;
+    font-weight: 600 !important;
+    letter-spacing: 1px !important;
+    color: var(--text-muted) !important;
+    margin: 0 !important;
+}
+div.row-widget.stRadio > div > label[data-checked="true"] p {
+    color: var(--accent-blue) !important;
 }
 
 /* ── KPI Metric Cards ── */
@@ -189,32 +221,6 @@ html, body, [class*="css"] {
     margin-top: 0.15rem;
 }
 
-/* ── Tab Bar ── */
-.stTabs [data-baseweb="tab-list"] {
-    background: rgba(255,255,255,0.04) !important;
-    border-radius: var(--radius-sm) !important;
-    border: 1px solid var(--glass-border) !important;
-    padding: 4px !important;
-    gap: 4px !important;
-}
-.stTabs [data-baseweb="tab"] {
-    font-family: 'Orbitron', monospace !important;
-    font-size: 0.7rem !important;
-    font-weight: 600 !important;
-    letter-spacing: 1px !important;
-    color: var(--text-muted) !important;
-    background: transparent !important;
-    border-radius: var(--radius-sm) !important;
-    padding: 0.55rem 1rem !important;
-    border: none !important;
-    transition: all 0.3s ease !important;
-}
-.stTabs [aria-selected="true"] {
-    background: linear-gradient(135deg, rgba(0,212,255,0.20), rgba(123,47,255,0.20)) !important;
-    color: var(--accent-blue) !important;
-    box-shadow: 0 0 18px rgba(0,212,255,0.25) !important;
-}
-
 /* ── Dropdown / Expander Checkbox Lists (Glass Animation) ── */
 [data-testid="stExpander"] {
     background: rgba(255, 255, 255, 0.03) !important;
@@ -239,64 +245,15 @@ html, body, [class*="css"] {
     text-transform: uppercase !important;
     padding: 0.8rem 1rem !important;
 }
-[data-testid="stExpander"] summary:hover {
-    color: var(--accent-blue) !important;
-}
-[data-testid="stExpanderDetails"] {
-    animation: slideDownFade 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
-    padding: 0.5rem 1rem 1rem 1rem !important;
-    transform-origin: top;
-}
-@keyframes slideDownFade {
-    from { opacity: 0; transform: scaleY(0.95) translateY(-10px); }
-    to { opacity: 1; transform: scaleY(1) translateY(0); }
-}
-
-/* ── Sliders & Selectboxes ── */
-.stSlider > div > div > div { background: var(--accent-violet) !important; }
-.stSelectbox > div {
-    background: rgba(255,255,255,0.06) !important;
-    border: 1px solid var(--glass-border) !important;
-    border-radius: var(--radius-sm) !important;
-    color: var(--text-primary) !important;
-}
-.stSlider label, .stSelectbox label, 
-.stRadio label, .stCheckbox label {
-    color: var(--text-muted) !important;
-    font-size: 0.82rem !important;
-    letter-spacing: 0.8px !important;
-    text-transform: uppercase !important;
-}
-
-/* Checkbox Hover Animations */
-[data-testid="stCheckbox"] {
-    background: rgba(255,255,255,0.02);
-    padding: 0.4rem 0.8rem;
-    border-radius: 8px;
-    margin-bottom: 0.2rem;
-    transition: background 0.3s ease, transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
-}
-[data-testid="stCheckbox"]:hover {
-    background: rgba(0, 212, 255, 0.1);
-    transform: translateX(6px);
-}
-
-/* ── DataFrames ── */
-.stDataFrame, [data-testid="stDataFrame"] {
-    background: var(--glass-bg) !important;
-    border: 1px solid var(--glass-border) !important;
-    border-radius: var(--radius-sm) !important;
-    backdrop-filter: var(--glass-blur) !important;
-}
 
 /* ── Buttons ── */
 .stButton > button, .stDownloadButton > button {
     background: linear-gradient(135deg, var(--accent-blue), var(--accent-violet)) !important;
     color: #fff !important;
     border: none !important;
-    border-radius: var(--radius-sm) !important;
+    border-radius: 30px !important; /* Updated to pill shape */
     font-family: 'Orbitron', monospace !important;
-    font-size: 0.72rem !important;
+    font-size: 0.75rem !important;
     font-weight: 600 !important;
     letter-spacing: 1px !important;
     padding: 0.6rem 1.4rem !important;
@@ -327,7 +284,6 @@ html, body, [class*="css"] {
 """
 
 st.markdown(GLASS_CSS, unsafe_allow_html=True)
-
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -618,22 +574,30 @@ if dff.empty:
     st.stop()
 
 # ─────────────────────────────────────────────────────────────────────────────
-# 8.  HEADER & CONTROL PANEL LAUNCHER
+# 8.  TOP LAYOUT: HEADER, NAVIGATION, & SETTINGS
 # ─────────────────────────────────────────────────────────────────────────────
-st.markdown(
-    '<div class="glass-card" style="margin-bottom:0.8rem;">'
-    '<div class="neon-title">🏧 ATM Intelligence · Glass OS</div>'
-    '<div class="neon-sub">'
-    'Demand Forecasting & Behavioural Analytics — FA-2'
-    '</div></div>',
-    unsafe_allow_html=True,
-)
+col_title, col_nav, col_set = st.columns([1.5, 4.5, 1])
 
-col_settings, col_empty = st.columns([1, 4])
-with col_settings:
-    if st.button("⚙️ System Configuration Panel", use_container_width=True):
+with col_title:
+    st.markdown(
+        '<div class="glass-card" style="padding: 0.7rem 1rem; text-align: center; border-radius: 30px; margin-bottom: 0;">'
+        '<span class="neon-title" style="font-size: 1.25rem; line-height: 1;">ATM Intelligence</span>'
+        '</div>',
+        unsafe_allow_html=True,
+    )
+
+with col_nav:
+    nav_selection = st.radio(
+        "Navigation",
+        ["EDA patterns", "Clustering", "Anomaly Detection", "Forecasting", "Export"],
+        horizontal=True,
+        label_visibility="collapsed"
+    )
+
+with col_set:
+    if st.button("⚙️ Setting", use_container_width=True):
         settings_dialog()
-        
+
 st.markdown("<br>", unsafe_allow_html=True)
 
 # ── KPI Row ─────────────────────────────────────────────────────────────────
@@ -665,20 +629,13 @@ kpi_card(kpi5, util_pct, "Cash Utilisation",    "mean across ATMs")
 st.markdown("<br>", unsafe_allow_html=True)
 
 # ─────────────────────────────────────────────────────────────────────────────
-# 9.  TABS
+# 9.  DYNAMIC MAIN CONTENT AREA
 # ─────────────────────────────────────────────────────────────────────────────
-tab_eda, tab_cluster, tab_anomaly, tab_forecast, tab_export = st.tabs([
-    "EDA · Patterns",
-    "Clustering",
-    "Anomaly Detection",
-    "Forecasting",
-    "Export",
-])
 
 # ═════════════════════════════════════════════════════════════════════════════
 # TAB A — EXPLORATORY DATA ANALYSIS
 # ═════════════════════════════════════════════════════════════════════════════
-with tab_eda:
+if nav_selection == "EDA patterns":
     st.markdown('<div class="section-title">Distribution Analysis</div>', unsafe_allow_html=True)
 
     col_h1, col_h2 = st.columns(2)
@@ -809,7 +766,7 @@ with tab_eda:
 # ═════════════════════════════════════════════════════════════════════════════
 # TAB B — CLUSTERING
 # ═════════════════════════════════════════════════════════════════════════════
-with tab_cluster:
+elif nav_selection == "Clustering":
     st.markdown('<div class="section-title">K-Means ATM Clustering</div>', unsafe_allow_html=True)
 
     if len(cluster_features) < 2:
@@ -910,7 +867,7 @@ with tab_cluster:
 # ═════════════════════════════════════════════════════════════════════════════
 # TAB C — ANOMALY DETECTION
 # ═════════════════════════════════════════════════════════════════════════════
-with tab_anomaly:
+elif nav_selection == "Anomaly Detection":
     st.markdown('<div class="section-title">Isolation Forest · Anomaly Detection</div>', unsafe_allow_html=True)
 
     if len(anomaly_features) < 1:
@@ -1000,7 +957,7 @@ with tab_anomaly:
 # ═════════════════════════════════════════════════════════════════════════════
 # TAB D — FORECASTING
 # ═════════════════════════════════════════════════════════════════════════════
-with tab_forecast:
+elif nav_selection == "Forecasting":
     st.markdown('<div class="section-title">Cash Demand Forecasting · Exponential Smoothing</div>', unsafe_allow_html=True)
 
     ts_df, fc_df = compute_forecast(dff, forecast_days)
@@ -1065,7 +1022,7 @@ with tab_forecast:
 # ═════════════════════════════════════════════════════════════════════════════
 # TAB E — EXPORT ENGINE
 # ═════════════════════════════════════════════════════════════════════════════
-with tab_export:
+elif nav_selection == "Export":
     st.markdown('<div class="section-title">Intelligence Report Export Engine</div>', unsafe_allow_html=True)
 
     st.markdown(
