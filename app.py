@@ -155,7 +155,8 @@ html, body, [class*="css"] {
     100% { background-position: 0% 50%; }
 }
 
-div.row-widget.stRadio > div {
+/* Target the main radio group container */
+[data-testid="stRadio"] > div[role="radiogroup"] {
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.02)) !important;
     backdrop-filter: blur(25px) !important;
     -webkit-backdrop-filter: blur(25px) !important;
@@ -166,24 +167,35 @@ div.row-widget.stRadio > div {
     display: flex !important;
     justify-content: space-around !important;
     align-items: center !important;
+    gap: 5px !important;
     animation: glassMorph 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
 }
 
-div.row-widget.stRadio > div > label {
+/* Target the individual radio labels */
+[data-testid="stRadio"] [role="radiogroup"] label {
     background: transparent !important;
-    padding: 0.5rem 1rem !important;
+    padding: 0.6rem 1.2rem !important;
     border-radius: 30px !important;
     cursor: pointer !important;
     transition: all 0.3s ease !important;
     border: 1px solid transparent !important;
+    margin: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
 }
 
-div.row-widget.stRadio > div > label:hover {
+/* Hide the native Streamlit radio circles */
+[data-testid="stRadio"] [role="radiogroup"] label > div:first-child {
+    display: none !important;
+}
+
+[data-testid="stRadio"] [role="radiogroup"] label:hover {
     background: rgba(255,255,255,0.08) !important;
 }
 
 /* Active State: Liquid Glass Morph */
-div.row-widget.stRadio > div > label[data-checked="true"] {
+[data-testid="stRadio"] [role="radiogroup"] label[data-checked="true"] {
     background: linear-gradient(270deg, rgba(0,212,255,0.5), rgba(123,47,255,0.6), rgba(0,212,255,0.5)) !important;
     background-size: 200% 200% !important;
     animation: liquidGradient 3s ease infinite !important;
@@ -191,7 +203,8 @@ div.row-widget.stRadio > div > label[data-checked="true"] {
     border: 1px solid rgba(255, 255, 255, 0.4) !important;
 }
 
-div.row-widget.stRadio p {
+/* Text styling inside labels */
+[data-testid="stRadio"] [role="radiogroup"] label p {
     font-family: 'Orbitron', monospace !important;
     font-size: 0.75rem !important;
     font-weight: 600 !important;
@@ -201,7 +214,8 @@ div.row-widget.stRadio p {
     text-shadow: 0 2px 4px rgba(0,0,0,0.5) !important;
 }
 
-div.row-widget.stRadio > div > label[data-checked="true"] p {
+/* Text styling for active state */
+[data-testid="stRadio"] [role="radiogroup"] label[data-checked="true"] p {
     color: #ffffff !important;
     text-shadow: 0 0 8px rgba(255,255,255,0.8) !important;
 }
@@ -285,6 +299,7 @@ div.row-widget.stRadio > div > label[data-checked="true"] p {
     box-shadow: inset 0 0 10px rgba(255,255,255,0.1), 0 4px 15px rgba(0,0,0,0.2) !important;
     transition: all 0.3s ease !important;
     cursor: pointer !important;
+    height: 100% !important; /* Forces button to align in height */
 }
 .stButton > button:hover, .stDownloadButton > button:hover {
     background: linear-gradient(135deg, rgba(0,212,255,0.5), rgba(123,47,255,0.5)) !important;
