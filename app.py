@@ -83,23 +83,31 @@ html, body, [class*="css"] {
     max-width: 100% !important;
 }
 
-/* ── Dialog / Pop-up Glassmorphism Animation ── */
-[data-testid="stDialog"] > div {
-    background: rgba(8, 12, 36, 0.65) !important;
-    backdrop-filter: blur(25px) !important;
-    -webkit-backdrop-filter: blur(25px) !important;
-    border: 1px solid rgba(255,255,255,0.15) !important;
-    border-radius: 20px !important;
-    box-shadow: 0 8px 32px rgba(0, 212, 255, 0.25) !important;
-    animation: glassMorph 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+/* ── Popover Settings Dropdown (Liquid Morph Animation) ── */
+[data-testid="stPopoverBody"] {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02)) !important;
+    backdrop-filter: blur(35px) !important;
+    -webkit-backdrop-filter: blur(35px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.25) !important;
+    padding: 1.5rem !important;
+    width: 360px !important;
+    max-width: 90vw !important;
+    animation: liquidMorph 6s ease-in-out infinite alternate !important;
 }
-[data-testid="stModal"] {
-    background: rgba(3, 5, 15, 0.7) !important; /* backdrop dimming */
-    backdrop-filter: blur(8px) !important;
-}
-@keyframes glassMorph {
-    0% { opacity: 0; transform: scale(0.92) translateY(30px); }
-    100% { opacity: 1; transform: scale(1) translateY(0); }
+
+@keyframes liquidMorph {
+    0% {
+        border-radius: 20px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4), inset 0 0 15px rgba(0, 212, 255, 0.1);
+    }
+    50% {
+        border-radius: 28px 18px 24px 20px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4), inset 0 0 35px rgba(123, 47, 255, 0.25);
+    }
+    100% {
+        border-radius: 18px 26px 20px 24px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4), inset 0 0 20px rgba(0, 212, 255, 0.15);
+    }
 }
 
 /* ── Animated slide-in for main sections ── */
@@ -168,7 +176,7 @@ html, body, [class*="css"] {
     justify-content: space-around !important;
     align-items: center !important;
     gap: 5px !important;
-    animation: glassMorph 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+    animation: slideUpFade 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
 }
 
 /* Target the individual radio labels */
@@ -283,8 +291,8 @@ html, body, [class*="css"] {
     padding: 0.8rem 1rem !important;
 }
 
-/* ── Buttons (Apple Glass Pill) ── */
-.stButton > button, .stDownloadButton > button {
+/* ── Buttons (Apple Glass Pill) - Applied to Standard Buttons and Popover Triggers ── */
+.stButton > button, .stDownloadButton > button, [data-testid="stPopover"] > button {
     background: linear-gradient(135deg, rgba(0,212,255,0.3), rgba(123,47,255,0.3)) !important;
     backdrop-filter: blur(15px) !important;
     -webkit-backdrop-filter: blur(15px) !important;
@@ -300,8 +308,9 @@ html, body, [class*="css"] {
     transition: all 0.3s ease !important;
     cursor: pointer !important;
     height: 100% !important; /* Forces button to align in height */
+    width: 100% !important;
 }
-.stButton > button:hover, .stDownloadButton > button:hover {
+.stButton > button:hover, .stDownloadButton > button:hover, [data-testid="stPopover"] > button:hover {
     background: linear-gradient(135deg, rgba(0,212,255,0.5), rgba(123,47,255,0.5)) !important;
     transform: translateY(-2px) !important;
     box-shadow: inset 0 0 15px rgba(255,255,255,0.2), 0 8px 25px rgba(0,212,255,0.4) !important;
@@ -421,7 +430,6 @@ def run_kmeans(X: np.ndarray, k: int, random_state: int) -> tuple:
     labels = final_km.fit_predict(X)
     return labels, inertias, sil_scores, list(k_range)
 
-# 👇 FIX: ADDED @st.cache_data TO PREVENT MASSIVE LAG ON TAB SWITCHING
 @st.cache_data(show_spinner=False)
 def run_isolation_forest(df: pd.DataFrame, contamination: float, feature_cols: list) -> pd.DataFrame:
     """Detect anomalies with Isolation Forest."""
@@ -514,112 +522,7 @@ if "hol_only" not in st.session_state: st.session_state.hol_only = False
 if "fc_days" not in st.session_state: st.session_state.fc_days = 7
 
 # ─────────────────────────────────────────────────────────────────────────────
-# 6.  SETTINGS DIALOG (POP-UP GLASS OS)
-# ─────────────────────────────────────────────────────────────────────────────
-@st.dialog("⚙️ ATM OS Settings")
-def settings_dialog():
-    st.markdown(
-        '<div style="text-align:center; padding: 0 0 1rem;">'
-        '<span style="font-family:Orbitron,monospace; font-size:1.1rem; '
-        'background:linear-gradient(135deg,#00d4ff,#7b2fff); '
-        '-webkit-background-clip:text; -webkit-text-fill-color:transparent; '
-        'font-weight:800; letter-spacing:2px;">INTELLIGENCE CONTROL PANEL</span><br>'
-        '<span style="font-size:0.68rem; color:rgba(200,210,255,0.45); '
-        'letter-spacing:1.5px;">SYSTEM PREFERENCES</span>'
-        '</div>',
-        unsafe_allow_html=True,
-    )
-
-    # ── Global Filters
-    st.markdown('<div class="sidebar-section-header">Global Filters</div>', unsafe_allow_html=True)
-    
-    with st.expander("📍 Location Type"):
-        temp_locs = []
-        for loc in all_locations:
-            if st.checkbox(loc, value=(loc in st.session_state.loc_filter), key=f"loc_chk_{loc}"):
-                temp_locs.append(loc)
-        st.session_state.loc_filter = temp_locs
-
-    with st.expander("⛅ Weather Condition"):
-        temp_wx = []
-        for wx in all_weather:
-            if st.checkbox(wx, value=(wx in st.session_state.wx_filter), key=f"wx_chk_{wx}"):
-                temp_wx.append(wx)
-        st.session_state.wx_filter = temp_wx
-        
-    st.date_input("Date Range", min_value=date_min, max_value=date_max, key="date_range")
-
-    # ── Clustering Parameters
-    st.markdown('<div class="sidebar-section-header">Clustering (K-Means)</div>', unsafe_allow_html=True)
-    st.slider("Number of Clusters (K)", 2, 10, key="k_val")
-    st.slider("Random State", 0, 100, key="km_rs")
-    
-    cl_opts = ["Total_Withdrawals", "Total_Deposits", "Nearby_Competitor_ATMs",
-               "Cash_Utilisation", "Net_Flow", "Previous_Day_Cash_Level"]
-    with st.expander("🔵 Cluster Features"):
-        temp_cl = []
-        for feat in cl_opts:
-            if st.checkbox(feat, value=(feat in st.session_state.cl_feat), key=f"cl_chk_{feat}"):
-                temp_cl.append(feat)
-        st.session_state.cl_feat = temp_cl
-
-    # ── Anomaly Detection Parameters
-    st.markdown('<div class="sidebar-section-header">Anomaly Detection</div>', unsafe_allow_html=True)
-    st.slider("Contamination Rate", 0.01, 0.30, step=0.01, key="iso_cont")
-    
-    ano_opts = ["Total_Withdrawals", "Cash_Demand_Next_Day", "Previous_Day_Cash_Level", "Net_Flow"]
-    with st.expander("⚠ Anomaly Features"):
-        temp_ano = []
-        for feat in ano_opts:
-            if st.checkbox(feat, value=(feat in st.session_state.ano_feat), key=f"ano_chk_{feat}"):
-                temp_ano.append(feat)
-        st.session_state.ano_feat = temp_ano
-        
-    st.checkbox("Holiday / Event Days Only", key="hol_only")
-
-    # ── Forecasting Parameters
-    st.markdown('<div class="sidebar-section-header">Forecasting</div>', unsafe_allow_html=True)
-    st.slider("Days to Forecast", 3, 30, key="fc_days")
-
-    st.markdown("<br>", unsafe_allow_html=True)
-    if st.button("Apply Parameters", use_container_width=True):
-        st.rerun()
-
-# Map session variables back to local logic
-sel_locations = st.session_state.loc_filter
-sel_weather = st.session_state.wx_filter
-date_range = st.session_state.date_range
-k_value = st.session_state.k_val
-km_random_state = st.session_state.km_rs
-cluster_features = st.session_state.cl_feat
-iso_contamination = st.session_state.iso_cont
-anomaly_features = st.session_state.ano_feat
-holiday_only = st.session_state.hol_only
-forecast_days = st.session_state.fc_days
-
-# ─────────────────────────────────────────────────────────────────────────────
-# 7.  APPLY GLOBAL FILTERS
-# ─────────────────────────────────────────────────────────────────────────────
-if len(date_range) == 2:
-    d_start, d_end = pd.Timestamp(date_range[0]), pd.Timestamp(date_range[1])
-else:
-    d_start, d_end = df["Date"].min(), df["Date"].max()
-
-mask = (
-    df["Location_Type"].isin(sel_locations) &
-    df["Weather_Condition"].isin(sel_weather) &
-    df["Date"].between(d_start, d_end)
-)
-dff = df[mask].copy()
-
-if dff.empty:
-    st.warning("⚠ No data matches your current filters. Please widen the selection to view data.")
-    if st.button("⚙️ Open Settings"):
-        settings_dialog()
-    st.stop()
-
-# ─────────────────────────────────────────────────────────────────────────────
-# 8.  TOP LAYOUT: HEADER, NAVIGATION, & SETTINGS
+# 6.  TOP LAYOUT: HEADER, NAVIGATION, & POPOVER SETTINGS
 # ─────────────────────────────────────────────────────────────────────────────
 col_title, col_nav, col_set = st.columns([1.5, 4.5, 1])
 
@@ -640,8 +543,105 @@ with col_nav:
     )
 
 with col_set:
-    if st.button("⚙️ Setting", use_container_width=True):
-        settings_dialog()
+    # Popover replaces the previous st.dialog full-screen pop-up
+    with st.popover("⚙️ Setting", use_container_width=True):
+        st.markdown(
+            '<div style="text-align:center; padding: 0 0 1rem;">'
+            '<span style="font-family:Orbitron,monospace; font-size:1.1rem; '
+            'background:linear-gradient(135deg,#00d4ff,#7b2fff); '
+            '-webkit-background-clip:text; -webkit-text-fill-color:transparent; '
+            'font-weight:800; letter-spacing:2px;">INTELLIGENCE CONTROL PANEL</span><br>'
+            '<span style="font-size:0.68rem; color:rgba(200,210,255,0.45); '
+            'letter-spacing:1.5px;">SYSTEM PREFERENCES</span>'
+            '</div>',
+            unsafe_allow_html=True,
+        )
+
+        # ── Global Filters
+        st.markdown('<div class="sidebar-section-header">Global Filters</div>', unsafe_allow_html=True)
+        
+        with st.expander("📍 Location Type"):
+            temp_locs = []
+            for loc in all_locations:
+                if st.checkbox(loc, value=(loc in st.session_state.loc_filter), key=f"loc_chk_{loc}"):
+                    temp_locs.append(loc)
+            st.session_state.loc_filter = temp_locs
+
+        with st.expander("⛅ Weather Condition"):
+            temp_wx = []
+            for wx in all_weather:
+                if st.checkbox(wx, value=(wx in st.session_state.wx_filter), key=f"wx_chk_{wx}"):
+                    temp_wx.append(wx)
+            st.session_state.wx_filter = temp_wx
+            
+        st.date_input("Date Range", min_value=date_min, max_value=date_max, key="date_range")
+
+        # ── Clustering Parameters
+        st.markdown('<div class="sidebar-section-header">Clustering (K-Means)</div>', unsafe_allow_html=True)
+        st.slider("Number of Clusters (K)", 2, 10, key="k_val")
+        st.slider("Random State", 0, 100, key="km_rs")
+        
+        cl_opts = ["Total_Withdrawals", "Total_Deposits", "Nearby_Competitor_ATMs",
+                   "Cash_Utilisation", "Net_Flow", "Previous_Day_Cash_Level"]
+        with st.expander("🔵 Cluster Features"):
+            temp_cl = []
+            for feat in cl_opts:
+                if st.checkbox(feat, value=(feat in st.session_state.cl_feat), key=f"cl_chk_{feat}"):
+                    temp_cl.append(feat)
+            st.session_state.cl_feat = temp_cl
+
+        # ── Anomaly Detection Parameters
+        st.markdown('<div class="sidebar-section-header">Anomaly Detection</div>', unsafe_allow_html=True)
+        st.slider("Contamination Rate", 0.01, 0.30, step=0.01, key="iso_cont")
+        
+        ano_opts = ["Total_Withdrawals", "Cash_Demand_Next_Day", "Previous_Day_Cash_Level", "Net_Flow"]
+        with st.expander("⚠ Anomaly Features"):
+            temp_ano = []
+            for feat in ano_opts:
+                if st.checkbox(feat, value=(feat in st.session_state.ano_feat), key=f"ano_chk_{feat}"):
+                    temp_ano.append(feat)
+            st.session_state.ano_feat = temp_ano
+            
+        st.checkbox("Holiday / Event Days Only", key="hol_only")
+
+        # ── Forecasting Parameters
+        st.markdown('<div class="sidebar-section-header">Forecasting</div>', unsafe_allow_html=True)
+        st.slider("Days to Forecast", 3, 30, key="fc_days")
+
+        st.markdown("<br>", unsafe_allow_html=True)
+        if st.button("Apply Parameters", use_container_width=True):
+            st.rerun()
+
+# ─────────────────────────────────────────────────────────────────────────────
+# 7.  MAP SESSION STATE AND APPLY FILTERS
+# ─────────────────────────────────────────────────────────────────────────────
+# Map session variables back to local logic
+sel_locations = st.session_state.loc_filter
+sel_weather = st.session_state.wx_filter
+date_range = st.session_state.date_range
+k_value = st.session_state.k_val
+km_random_state = st.session_state.km_rs
+cluster_features = st.session_state.cl_feat
+iso_contamination = st.session_state.iso_cont
+anomaly_features = st.session_state.ano_feat
+holiday_only = st.session_state.hol_only
+forecast_days = st.session_state.fc_days
+
+if len(date_range) == 2:
+    d_start, d_end = pd.Timestamp(date_range[0]), pd.Timestamp(date_range[1])
+else:
+    d_start, d_end = df["Date"].min(), df["Date"].max()
+
+mask = (
+    df["Location_Type"].isin(sel_locations) &
+    df["Weather_Condition"].isin(sel_weather) &
+    df["Date"].between(d_start, d_end)
+)
+dff = df[mask].copy()
+
+if dff.empty:
+    st.warning("⚠ No data matches your current filters. Please widen the selection in the settings panel.")
+    st.stop()
 
 st.markdown("<br>", unsafe_allow_html=True)
 
@@ -674,7 +674,7 @@ kpi_card(kpi5, util_pct, "Cash Utilisation",    "mean across ATMs")
 st.markdown("<br>", unsafe_allow_html=True)
 
 # ─────────────────────────────────────────────────────────────────────────────
-# 9.  DYNAMIC MAIN CONTENT AREA
+# 8.  DYNAMIC MAIN CONTENT AREA
 # ─────────────────────────────────────────────────────────────────────────────
 
 # ═════════════════════════════════════════════════════════════════════════════
