@@ -34,7 +34,7 @@ st.set_page_config(
 )
 
 # ─────────────────────────────────────────────────────────────────────────────
-# 1.  CUSTOM CSS  — Apple Clear Glass & Ultra Liquid Morph Theme
+# 1.  CUSTOM CSS  — Apple Clear Glass & Liquid Morph Theme
 # ─────────────────────────────────────────────────────────────────────────────
 GLASS_CSS = """
 <style>
@@ -83,76 +83,30 @@ html, body, [class*="css"] {
     max-width: 100% !important;
 }
 
-/* ═════════════════════════════════════════════════════════════════════════════
-   ULTRA CLEAR LIQUID POPOVER (Settings Dropdown)
-   ═════════════════════════════════════════════════════════════════════════════ */
+/* ── Popover Settings Dropdown (Liquid Morph Animation) ── */
 [data-testid="stPopoverBody"] {
-    /* Override Streamlit's dark theme solid backgrounds */
-    background-color: rgba(5, 10, 25, 0.35) !important;
-    background-image: linear-gradient(135deg, rgba(0, 212, 255, 0.05), rgba(123, 47, 255, 0.05)) !important;
-    backdrop-filter: blur(40px) saturate(150%) !important;
-    -webkit-backdrop-filter: blur(40px) saturate(150%) !important;
-    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02)) !important;
+    backdrop-filter: blur(35px) !important;
+    -webkit-backdrop-filter: blur(35px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.25) !important;
     padding: 1.5rem !important;
-    width: 380px !important;
+    width: 360px !important;
     max-width: 90vw !important;
-    animation: popoverLiquid 8s ease-in-out infinite alternate !important;
-    overflow: hidden !important; 
+    animation: liquidMorph 6s ease-in-out infinite alternate !important;
 }
 
-/* Make absolutely sure all nested containers inside the popover are transparent */
-[data-testid="stPopoverBody"] > div,
-[data-testid="stPopoverBody"] > div > div {
-    background: transparent !important;
-}
-
-@keyframes popoverLiquid {
+@keyframes liquidMorph {
     0% {
-        border-radius: 20px 30px 20px 30px;
-        box-shadow: 0 10px 40px rgba(0,0,0,0.5), inset 0 0 20px rgba(0, 212, 255, 0.15);
-        border-color: rgba(0, 212, 255, 0.4);
+        border-radius: 20px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4), inset 0 0 15px rgba(0, 212, 255, 0.1);
     }
     50% {
-        border-radius: 30px 20px 30px 20px;
-        box-shadow: 0 10px 40px rgba(0,0,0,0.5), inset 0 0 30px rgba(123, 47, 255, 0.2);
-        border-color: rgba(123, 47, 255, 0.4);
+        border-radius: 28px 18px 24px 20px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4), inset 0 0 35px rgba(123, 47, 255, 0.25);
     }
     100% {
-        border-radius: 20px 30px 20px 30px;
-        box-shadow: 0 10px 40px rgba(0,0,0,0.5), inset 0 0 20px rgba(255, 45, 120, 0.15);
-        border-color: rgba(255, 45, 120, 0.4);
-    }
-}
-
-/* Liquid Morph for ALL elements inside the settings panel (Expanders, Inputs, etc) */
-[data-testid="stPopoverBody"] [data-testid="stExpander"],
-[data-testid="stPopoverBody"] [data-baseweb="input"],
-[data-testid="stPopoverBody"] [data-baseweb="select"] > div {
-    background: rgba(255, 255, 255, 0.03) !important;
-    backdrop-filter: blur(10px) !important;
-    border: 1px solid rgba(255, 255, 255, 0.1) !important;
-    animation: innerLiquid 6s infinite alternate ease-in-out !important;
-    transition: all 0.3s ease !important;
-}
-
-[data-testid="stPopoverBody"] [data-testid="stExpander"]:hover {
-    background: rgba(255, 255, 255, 0.08) !important;
-    border-color: rgba(0, 212, 255, 0.5) !important;
-    box-shadow: 0 0 15px rgba(0, 212, 255, 0.2) !important;
-}
-
-@keyframes innerLiquid {
-    0% { 
-        border-radius: 10px 14px 10px 14px;
-        box-shadow: inset 0 0 8px rgba(0, 212, 255, 0.1); 
-    }
-    50% { 
-        border-radius: 14px 10px 14px 10px;
-        box-shadow: inset 0 0 12px rgba(123, 47, 255, 0.15); 
-    }
-    100% { 
-        border-radius: 10px 14px 10px 14px;
-        box-shadow: inset 0 0 8px rgba(0, 212, 255, 0.1); 
+        border-radius: 18px 26px 20px 24px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4), inset 0 0 20px rgba(0, 212, 255, 0.15);
     }
 }
 
@@ -209,6 +163,7 @@ html, body, [class*="css"] {
     100% { background-position: 0% 50%; }
 }
 
+/* Target the main radio group container */
 [data-testid="stRadio"] > div[role="radiogroup"] {
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.02)) !important;
     backdrop-filter: blur(25px) !important;
@@ -224,6 +179,7 @@ html, body, [class*="css"] {
     animation: slideUpFade 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
 }
 
+/* Target the individual radio labels */
 [data-testid="stRadio"] [role="radiogroup"] label {
     background: transparent !important;
     padding: 0.6rem 1.2rem !important;
@@ -237,6 +193,7 @@ html, body, [class*="css"] {
     justify-content: center !important;
 }
 
+/* Hide the native Streamlit radio circles */
 [data-testid="stRadio"] [role="radiogroup"] label > div:first-child {
     display: none !important;
 }
@@ -254,6 +211,7 @@ html, body, [class*="css"] {
     border: 1px solid rgba(255, 255, 255, 0.4) !important;
 }
 
+/* Text styling inside labels */
 [data-testid="stRadio"] [role="radiogroup"] label p {
     font-family: 'Orbitron', monospace !important;
     font-size: 0.75rem !important;
@@ -264,6 +222,7 @@ html, body, [class*="css"] {
     text-shadow: 0 2px 4px rgba(0,0,0,0.5) !important;
 }
 
+/* Text styling for active state */
 [data-testid="stRadio"] [role="radiogroup"] label[data-checked="true"] p {
     color: #ffffff !important;
     text-shadow: 0 0 8px rgba(255,255,255,0.8) !important;
@@ -307,6 +266,31 @@ html, body, [class*="css"] {
     margin-top: 0.15rem;
 }
 
+/* ── Dropdown / Expander Checkbox Lists (Glass Animation) ── */
+[data-testid="stExpander"] {
+    background: rgba(255, 255, 255, 0.03) !important;
+    border: 1px solid var(--glass-border) !important;
+    border-radius: var(--radius-sm) !important;
+    backdrop-filter: var(--glass-blur) !important;
+    -webkit-backdrop-filter: var(--glass-blur) !important;
+    margin-bottom: 1rem !important;
+    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
+}
+[data-testid="stExpander"]:hover {
+    background: rgba(255, 255, 255, 0.08) !important;
+    border-color: rgba(0, 212, 255, 0.4) !important;
+    box-shadow: 0 4px 20px rgba(0, 212, 255, 0.15) !important;
+}
+[data-testid="stExpander"] summary {
+    color: var(--text-muted) !important;
+    font-family: 'Rajdhani', sans-serif !important;
+    font-weight: 600 !important;
+    font-size: 0.85rem !important;
+    letter-spacing: 1px !important;
+    text-transform: uppercase !important;
+    padding: 0.8rem 1rem !important;
+}
+
 /* ── Buttons (Apple Glass Pill) - Applied to Standard Buttons and Popover Triggers ── */
 .stButton > button, .stDownloadButton > button, [data-testid="stPopover"] > button {
     background: linear-gradient(135deg, rgba(0,212,255,0.3), rgba(123,47,255,0.3)) !important;
@@ -314,7 +298,7 @@ html, body, [class*="css"] {
     -webkit-backdrop-filter: blur(15px) !important;
     color: #fff !important;
     border: 1px solid rgba(255,255,255,0.2) !important;
-    border-radius: 40px !important;
+    border-radius: 40px !important; /* Pill shape */
     font-family: 'Orbitron', monospace !important;
     font-size: 0.75rem !important;
     font-weight: 600 !important;
@@ -323,7 +307,7 @@ html, body, [class*="css"] {
     box-shadow: inset 0 0 10px rgba(255,255,255,0.1), 0 4px 15px rgba(0,0,0,0.2) !important;
     transition: all 0.3s ease !important;
     cursor: pointer !important;
-    height: 100% !important; 
+    height: 100% !important; /* Forces button to align in height */
     width: 100% !important;
 }
 .stButton > button:hover, .stDownloadButton > button:hover, [data-testid="stPopover"] > button:hover {
@@ -559,6 +543,7 @@ with col_nav:
     )
 
 with col_set:
+    # Popover replaces the previous st.dialog full-screen pop-up
     with st.popover("⚙️ Setting", use_container_width=True):
         st.markdown(
             '<div style="text-align:center; padding: 0 0 1rem;">'
