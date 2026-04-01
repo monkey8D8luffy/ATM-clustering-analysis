@@ -1,4 +1,4 @@
-# ATM-# 🏧 ATM Intelligence: Demand Forecasting & Behavioural Analytics
+# ATM- 🏧 ATM Intelligence: Demand Forecasting & Behavioural Analytics
 **FinTrust Bank Ltd. — Data Mining Project** **Formative Assessment 2 (FA-2): Building Actionable Insights and an Interactive Python Script**
 
 ![Python](https://img.shields.io/badge/Python-3.9%2B-blue)
